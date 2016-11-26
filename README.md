@@ -1,6 +1,10 @@
 # dict
-jJJava-projectOOonlineDDdictionary
-Git教程教程
+Java-project2:Online Dictionary
+Git教程：http://blog.jobbole.com/78960/
+
+branch：
+
+master版本分支
 
 
 
