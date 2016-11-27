@@ -9,9 +9,15 @@ http://blog.jobbole.com/78960/
 
 http://www.ruanyifeng.com/blog/2015/12/git-use-process.html
 
-branch：
+功能：
 
-  master版本分支
+在线查词
 
-  GUI图形界面分支
+在线翻译
+
+发送消息
+
+数据库
+
+界面优化
 
