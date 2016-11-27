@@ -7,7 +7,7 @@ import javax.swing.text.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
-
+// 76869
 public class Dict extends JFrame {
 	private JTabbedPane pane = new JTabbedPane(JTabbedPane.TOP);
 	private JTextField dic = new JTextField(30);
