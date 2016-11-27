@@ -38,7 +38,7 @@ public class Dict extends JFrame {
 		text[1]=new JTextArea("sdfsdvsdvssdvsdvgykgkdsvsdrrgdrghddvsdvdfsdvsd");
 		text[1].setBorder(border[1]);
 		border[2]=new TitledBorder("½ðÉ½");
-		text[2]=new JTextArea("afafafafafasdvsdvgykgkdsvsdrrgdrghddvsdvfafaffe");
+		text[2]=new JTextArea("afafafafafasdvsdvgykgkdsv\nsdrrgdrghddvsdvfafaffe");
 		text[2].setBorder(border[2]);
 		panel0.add(text[0]);
 		panel0.add(text[1]);
