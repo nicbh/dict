@@ -7,9 +7,6 @@ import javax.swing.text.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
-<<<<<<< HEAD
-//jg
-=======
 import java.net.*;
 
 >>>>>>> develop
