@@ -11,7 +11,9 @@ http://www.ruanyifeng.com/blog/2015/12/git-use-process.html
 
 功能：
 
-在线查词
+分组
+
+响应优化
 
 在线翻译
 
