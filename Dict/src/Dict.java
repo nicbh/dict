@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
 
->>>>>>> develop
+
 public class Dict extends JFrame {
 	private JTabbedPane pane = new JTabbedPane(JTabbedPane.TOP);
 	private JTextField dic = new JTextField(30);
