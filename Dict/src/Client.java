@@ -46,4 +46,36 @@ public class Client {
 			return -1;
 		}
 	}
+
+	public static void like(int index) {// 0bing 1youdao 2jinshan
+		if (index == 0 || index == 1 | index == 2)
+		{
+			try
+			{
+				int type = 3;
+				Socket socket = new Socket(host, port);
+				DataInputStream input = new DataInputStream(socket.getInputStream());
+				DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+				output.writeInt(type);
+				output.writeInt(index);
+				int success = input.readInt();
+				socket.close();
+				if (success == 1)
+					return;
+				else
+				{
+					System.err.println("client.like wrong");
+					return;
+				}
+			} catch (IOException ex)
+			{
+				System.err.println(ex);
+			}
+		} else
+			System.err.println("client.like wrong");
+	}
+
+	public static void send(String s) {
+		int type = 4;
+	}
 }

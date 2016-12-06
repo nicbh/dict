@@ -43,7 +43,9 @@ public class loginPanel extends JPanel {
 		add(box23);
 
 		signin.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
 				String user = username.getText().toString().trim();
 				String pwd = String.valueOf(password.getPassword());
 				if (user.length() < 1)
@@ -63,7 +65,9 @@ public class loginPanel extends JPanel {
 			}
 		});
 		signup.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
 				String user = username.getText().toString().trim();
 				String pwd = String.valueOf(password.getPassword());
 				if (user.length() < 1)

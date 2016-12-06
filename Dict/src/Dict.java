@@ -13,15 +13,17 @@ import java.net.*;
 public class Dict extends JFrame {
 	private JTabbedPane pane = new JTabbedPane(JTabbedPane.TOP);
 	private JTextField dic = new JTextField(30);
-	private JCheckBox baidu = new JCheckBox("百度", true);
+	private JCheckBox bing = new JCheckBox("必应", true);
 	private JCheckBox youdao = new JCheckBox("有道", true);
 	private JCheckBox jinshan = new JCheckBox("金山", true);
 	private JEditorPane[] text = new JEditorPane[3];
 	// private JScrollPane[] jsp = new JScrollPane[3];
 	private TitledBorder[] border = new TitledBorder[3];
-	private String[] dicts = { "百度", "有道", "金山" };
+	private String[] dicts = { "必应", "有道", "金山" };
+	private int[] order = { 0, 1, 2 };
+	private JScrollPane[] jsp = new JScrollPane[3];
 
-	private boolean isbaidu = true;
+	private boolean isbing = true;
 	private boolean isyoudao = true;
 	private boolean isjinshan = true;
 
@@ -30,7 +32,7 @@ public class Dict extends JFrame {
 		Font font = new Font("TimesRoman", Font.BOLD, 20);
 		Font font1 = new Font("TimesRoman", Font.BOLD, 15);
 		Font font2 = new Font("Dialog", Font.BOLD, 15);
-		Font font3 = new Font("Dialog",Font.BOLD,12);
+		Font font3 = new Font("Dialog", Font.BOLD, 12);
 		JPanel panel0 = new JPanel();
 		JLabel input = new JLabel("请输入单词：");
 		JButton bsearch = new JButton("search");
@@ -42,10 +44,10 @@ public class Dict extends JFrame {
 		box00.add(dic);
 		box00.add(bsearch);
 		Box box01 = Box.createHorizontalBox();
-		baidu.setFont(font3);
+		bing.setFont(font3);
 		youdao.setFont(font3);
 		jinshan.setFont(font3);
-		box01.add(baidu);
+		box01.add(bing);
 		box01.add(youdao);
 		box01.add(jinshan);
 
@@ -54,27 +56,29 @@ public class Dict extends JFrame {
 		text[0] = new JEditorPane("text/html", "");
 		text[0].setBorder(border[0]);
 		text[0].setEditable(false);
-		text[0].setPreferredSize(new Dimension(500,200));
-		JScrollPane jsp = new JScrollPane(text[0]);
+		jsp[0] = new JScrollPane(text[0]);
+		jsp[0].setPreferredSize(new Dimension(500, 200));
 		// text[0].setSize(40,5);
 		border[1] = new TitledBorder(dicts[1]);
 		border[1].setTitleFont(font1);
 		text[1] = new JEditorPane("text/html", "");
 		text[1].setBorder(border[1]);
 		text[1].setEditable(false);
-		text[1].setPreferredSize(new Dimension(500,200));
+		jsp[1] = new JScrollPane(text[1]);
+		jsp[1].setPreferredSize(new Dimension(500, 200));
 		// text[1].setSize(40,5);
 		border[2] = new TitledBorder(dicts[2]);
 		border[2].setTitleFont(font1);
 		text[2] = new JEditorPane("text/html", "");
 		text[2].setBorder(border[2]);
 		text[2].setEditable(false);
-		text[2].setPreferredSize(new Dimension(500,200));
+		jsp[2] = new JScrollPane(text[2]);
+		jsp[2].setPreferredSize(new Dimension(500, 200));
 		// text[2].setSize(40,5);
 		Box box02 = Box.createVerticalBox();
-		box02.add(jsp);
-		box02.add(text[1]);
-		box02.add(text[2]);
+		box02.add(jsp[0]);
+		box02.add(jsp[1]);
+		box02.add(jsp[2]);
 
 		Box box0 = Box.createVerticalBox();
 		box0.add(box00);
@@ -103,10 +107,9 @@ public class Dict extends JFrame {
 		bsearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String str = dic.getText();
-				if (isbaidu)
+				if (isbing)
 				{
-					String content = "<body>"
-							+ getPageContent("http://dict.baidu.com/s?wd=" + str + "&ptype=english", 0) + "</body>";
+					String content = getPageContent("http://cn.bing.com/dict/search?q=" + str, 0);
 					text[0].setText(content);
 				}
 				if (isjinshan)
@@ -121,9 +124,9 @@ public class Dict extends JFrame {
 				}
 			}
 		});
-		baidu.addActionListener(new ActionListener() {
+		bing.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				isbaidu = !isbaidu;
+				isbing = !isbing;
 			}
 		});
 		youdao.addActionListener(new ActionListener() {
@@ -164,42 +167,44 @@ public class Dict extends JFrame {
 				// if(i==2)
 				// System.out.println(str);
 			}
-			int beginIx = 0;
-			int endIx = 0;
-			System.out.println(content);
+			// System.out.println(content);
 			Pattern r = Pattern.compile("");
 			if (i == 0)
 			{
-				r = Pattern.compile("<div class=\"en-content\">\\s*<div>[\\s\\S]*?</div>[\\s\\S]*?</div>");
+				r = Pattern.compile("<ul><li><span class=\"pos[\\S\\s]*?</ul>");
+				// r = Pattern.compile("<div
+				// class=\"en-content\">\\s*<div>[\\s\\S]*?</div>[\\s\\S]*?</div>");
 			} else if (i == 1)
 			{
-				beginIx = content.indexOf("<span class=\"keyword\">");
-				endIx = content.indexOf("网络释义");
 				r = Pattern.compile("<div class=\"trans-container\">[\\s\\S]*?</div>");
 			} else
 			{
-				beginIx = content.indexOf("<span class=\"prop\">");
-				endIx = content.indexOf("<div class=\"base-bt-bar\">");
 				r = Pattern.compile(
 						"<ul class=\"base-list switch_part\" class=\"\">[\\s\\S]*?</ul>(\\s*<li class=\"change clearfix\">[\\s\\S]*?</li>)?");
 			}
 			Matcher m = r.matcher(content);
 			if (m.find())
 			{
+				System.out.println(m.group());
 				String result = m.group().replaceAll("<a[\\s\\S]*?href=\"\\S*\">", " ");
+				if (i == 0)
+					result = result.replaceAll("网络", "网络释义：");
 				if (i == 2)
+				{
 					result = result.replaceAll("<ul[\\S\\s]*?>|</ul>>|<p>|</p>", "");
+					result = result.replaceAll("变形", "变形：");
+				}
 				result = result.replaceAll("<li", "<p");
 				result = result.replaceAll("</li", "</p");
 				result = result.replaceAll("<ul>|</ul>", "");
-				//System.out.println(result);
+				// System.out.println(result);
 				return result;
 			} else
 				return "查无此词";
 		} catch (IOException e)
 		{
 			System.err.println(e);
-			return "查无此词";
+			return "连接不到在线词典";
 		}
 
 	}
