@@ -2,6 +2,10 @@
 import java.io.*;
 import java.util.regex.*;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
@@ -13,6 +17,7 @@ import java.net.*;
 public class Dict extends JFrame {
 	private JTabbedPane pane = new JTabbedPane(JTabbedPane.TOP);
 	private JTextField dic = new JTextField(30);
+	private JLabel hint = new JLabel(" ");
 	private JCheckBox bing = new JCheckBox("必应", true);
 	private JCheckBox youdao = new JCheckBox("有道", true);
 	private JCheckBox jinshan = new JCheckBox("金山", true);
@@ -20,15 +25,19 @@ public class Dict extends JFrame {
 	// private JScrollPane[] jsp = new JScrollPane[3];
 	private TitledBorder[] border = new TitledBorder[3];
 	private String[] dicts = { "必应", "有道", "金山" };
-	private int[] order = { 0, 1, 2 };
+	private int[] order = { 2, 0, 1 };
 	private JScrollPane[] jsp = new JScrollPane[3];
 
+	private boolean[] is = new boolean[3];
 	private boolean isbing = true;
 	private boolean isyoudao = true;
 	private boolean isjinshan = true;
 
 	Dict() {
 		super();
+		is[0] = true;
+		is[1] = true;
+		is[2] = true;
 		Font font = new Font("TimesRoman", Font.BOLD, 20);
 		Font font1 = new Font("TimesRoman", Font.BOLD, 15);
 		Font font2 = new Font("Dialog", Font.BOLD, 15);
@@ -51,7 +60,7 @@ public class Dict extends JFrame {
 		box01.add(youdao);
 		box01.add(jinshan);
 
-		border[0] = new TitledBorder(dicts[0]);
+		border[0] = new TitledBorder(dicts[order[0]]);
 		border[0].setTitleFont(font1);
 		text[0] = new JEditorPane("text/html", "");
 		text[0].setBorder(border[0]);
@@ -59,7 +68,7 @@ public class Dict extends JFrame {
 		jsp[0] = new JScrollPane(text[0]);
 		jsp[0].setPreferredSize(new Dimension(500, 200));
 		// text[0].setSize(40,5);
-		border[1] = new TitledBorder(dicts[1]);
+		border[1] = new TitledBorder(dicts[order[1]]);
 		border[1].setTitleFont(font1);
 		text[1] = new JEditorPane("text/html", "");
 		text[1].setBorder(border[1]);
@@ -67,7 +76,7 @@ public class Dict extends JFrame {
 		jsp[1] = new JScrollPane(text[1]);
 		jsp[1].setPreferredSize(new Dimension(500, 200));
 		// text[1].setSize(40,5);
-		border[2] = new TitledBorder(dicts[2]);
+		border[2] = new TitledBorder(dicts[order[2]]);
 		border[2].setTitleFont(font1);
 		text[2] = new JEditorPane("text/html", "");
 		text[2].setBorder(border[2]);
@@ -82,6 +91,9 @@ public class Dict extends JFrame {
 
 		Box box0 = Box.createVerticalBox();
 		box0.add(box00);
+		hint.setFont(font3);
+		hint.setForeground(Color.red);
+		box0.add(hint);
 		box0.add(box01);
 		box0.add(box02);
 		panel0.add(box0);
@@ -105,25 +117,22 @@ public class Dict extends JFrame {
 
 		// 给jbt添加监听器
 		bsearch.addActionListener(new ActionListener() {
+
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				String str = dic.getText();
-				if (isbing)
-				{
-					String content = getPageContent("http://cn.bing.com/dict/search?q=" + str, 0);
-					text[0].setText(content);
-				}
-				if (isjinshan)
-				{
-					String content = getPageContent("http://www.iciba.com/" + str, 2);
-					text[2].setText(content);
-				}
-				if (isyoudao)
-				{
-					String content = getPageContent("http://youdao.com/w/eng/" + str + "/#keyfrom=dict2.index", 1);
-					text[1].setText(content);
-				}
+				// TODO Auto-generated method stub
+				getDict();
 			}
 		});
+		dic.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				getDict();
+			}
+		});
+
 		bing.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				isbing = !isbing;
@@ -141,6 +150,41 @@ public class Dict extends JFrame {
 		});
 	}
 
+	void getDict() {
+		String str = dic.getText().trim();
+		// if (!str.matches("[1-9a-zA-Z,.;'\":<>{}].*"))
+		// hint.setText("wrong");
+		// else
+		{
+			hint.setText(" ");
+			int bing = 0, youdao = 0, jinshan = 0;
+			for (int i = 0; i < order.length; i++)
+			{
+				if (order[i] == 0)
+					bing = i;
+				if (order[i] == 1)
+					youdao = i;
+				if (order[i] == 2)
+					jinshan = i;
+			}
+			if (isbing)
+			{
+				text[bing].setText("载入中...");
+				new getPage("http://cn.bing.com/dict/search?q=" + str, 0, text[bing]).execute();
+			}
+			if (isyoudao)
+			{
+				text[youdao].setText("载入中...");
+				new getPage("http://youdao.com/w/" + str + "/#keyfrom=dict2.index", 1, text[youdao]).execute();
+			}
+			if (isjinshan)
+			{
+				text[jinshan].setText("载入中...");
+				new getPage("http://www.iciba.com/" + str, 2, text[jinshan]).execute();
+			}
+		}
+	}
+
 	public static void main(String[] args) {
 		JFrame frame = new Dict();
 		frame.setSize(700, 800);
@@ -151,61 +195,4 @@ public class Dict extends JFrame {
 		frame.setVisible(true);
 	}
 
-	public String getPageContent(String strUrl, int i) {
-		try
-		{
-			URL url = new URL(strUrl);
-			HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
-			InputStreamReader isr = new InputStreamReader(httpConn.getInputStream(), "utf-8");
-			BufferedReader br = new BufferedReader(isr);
-
-			String str;
-			StringBuilder content = new StringBuilder();
-			while ((str = br.readLine()) != null)
-			{
-				content.append(str);
-				// if(i==2)
-				// System.out.println(str);
-			}
-			// System.out.println(content);
-			Pattern r = Pattern.compile("");
-			if (i == 0)
-			{
-				r = Pattern.compile("<ul><li><span class=\"pos[\\S\\s]*?</ul>");
-				// r = Pattern.compile("<div
-				// class=\"en-content\">\\s*<div>[\\s\\S]*?</div>[\\s\\S]*?</div>");
-			} else if (i == 1)
-			{
-				r = Pattern.compile("<div class=\"trans-container\">[\\s\\S]*?</div>");
-			} else
-			{
-				r = Pattern.compile(
-						"<ul class=\"base-list switch_part\" class=\"\">[\\s\\S]*?</ul>(\\s*<li class=\"change clearfix\">[\\s\\S]*?</li>)?");
-			}
-			Matcher m = r.matcher(content);
-			if (m.find())
-			{
-				System.out.println(m.group());
-				String result = m.group().replaceAll("<a[\\s\\S]*?href=\"\\S*\">", " ");
-				if (i == 0)
-					result = result.replaceAll("网络", "网络释义：");
-				if (i == 2)
-				{
-					result = result.replaceAll("<ul[\\S\\s]*?>|</ul>>|<p>|</p>", "");
-					result = result.replaceAll("变形", "变形：");
-				}
-				result = result.replaceAll("<li", "<p");
-				result = result.replaceAll("</li", "</p");
-				result = result.replaceAll("<ul>|</ul>", "");
-				// System.out.println(result);
-				return result;
-			} else
-				return "查无此词";
-		} catch (IOException e)
-		{
-			System.err.println(e);
-			return "连接不到在线词典";
-		}
-
-	}
 }
