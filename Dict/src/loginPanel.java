@@ -12,6 +12,7 @@ public class loginPanel extends JPanel {
 	private JButton signup = new JButton("注册");
 	private JLabel label = new JLabel();
 	private Font font = new Font("TimesRoman", Font.BOLD, 18);
+	public Client client = new Client();
 
 	loginPanel() {
 		Box box20 = Box.createVerticalBox();
@@ -34,8 +35,8 @@ public class loginPanel extends JPanel {
 		box21.add(signup);
 		Box box22 = Box.createVerticalBox();
 
-		box22.add(box20);//, BorderLayout.CENTER);
-		box22.add(box21);//, BorderLayout.SOUTH);
+		box22.add(box20);// , BorderLayout.CENTER);
+		box22.add(box21);// , BorderLayout.SOUTH);
 		label.setFont(font);
 		Box box23 = Box.createVerticalBox();
 		box23.add(box22);
@@ -43,7 +44,9 @@ public class loginPanel extends JPanel {
 		add(box23);
 
 		signin.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
 				String user = username.getText().toString().trim();
 				String pwd = String.valueOf(password.getPassword());
 				if (user.length() < 1)
@@ -52,18 +55,20 @@ public class loginPanel extends JPanel {
 					label.setText("密码不能为空");
 				else
 				{
-					int rtn = Client.signin(user, pwd);
+					int rtn = client.signin(user, pwd);
 					if (rtn == 1)
 						label.setText("登陆成功");
 					else if (rtn == 0)
-						label.setText("用户名已存在");
+						label.setText("用户名或密码错误");
 					else if (rtn == -1)
 						label.setText("连接不上服务器");
 				}
 			}
 		});
 		signup.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
 				String user = username.getText().toString().trim();
 				String pwd = String.valueOf(password.getPassword());
 				if (user.length() < 1)
@@ -72,7 +77,7 @@ public class loginPanel extends JPanel {
 					label.setText("密码不能为空");
 				else
 				{
-					int rtn = Client.signup(user, pwd);
+					int rtn = client.signup(user, pwd);
 					if (rtn == 1)
 						label.setText("注册成功");
 					else if (rtn == 0)

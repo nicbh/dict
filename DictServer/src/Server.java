@@ -1,5 +1,8 @@
 
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.io.*;
 import java.awt.*;
 import javax.swing.*;
@@ -7,6 +10,8 @@ import java.net.*;
 
 public class Server extends JFrame {
 	private JTextArea text = new JTextArea();
+	private dbc database = new dbc();
+	private Map<Integer, Integer> users = Collections.synchronizedMap(new HashMap<Integer, Integer>());
 
 	public static void main(String[] args) {
 		new Server();
@@ -14,6 +19,7 @@ public class Server extends JFrame {
 
 	Server() {
 		super();
+		// System.out.println(database.sql_signup("", ""));
 		// JPanel panel = new JPanel();
 		// panel.add(text);
 		add(new JScrollPane(text), BorderLayout.CENTER);// panel);
@@ -23,20 +29,30 @@ public class Server extends JFrame {
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+		int[] ids = database.sql_id();
+		for (int id : ids)
+		{
+			users.put(id, 0);
+			System.out.println(database.getName(id) + " " + id);
+		}
+		// System.out.println(database.sql_signin("admin", "admin"));
+		// System.out.println(database.sql_signin("admn", "admm"));
+		// System.out.println(database.sql_signin("adn", "admm"));
 		try
 		{
 			ServerSocket serverSocket = new ServerSocket(7795);
 			text.append("Start to work\n");
 			int clientNo = 1;
+			ExecutorService executor = Executors.newCachedThreadPool();
 			while (true)
 			{
 				Socket socket = serverSocket.accept();
-				text.append("Starting thread for client )" + clientNo + " at " + new Date() + '\n');
+				text.append("Starting thread for client )" + clientNo + " at " + new java.util.Date() + '\n');
 				InetAddress inetAddress = socket.getInetAddress();
 				text.append("Client " + clientNo + "'s host name is " + inetAddress.getHostName() + '\n');
 				text.append("Client " + clientNo + "'s IP Addresss is " + inetAddress.getHostAddress() + '\n');
 
-				new Thread(new HandleAClient(socket)).start();
+				executor.execute(new HandleAClient(socket, clientNo));
 				clientNo++;
 			}
 		} catch (IOException ex)
@@ -47,83 +63,179 @@ public class Server extends JFrame {
 
 	private class HandleAClient implements Runnable {
 		private Socket socket;
+		private String No;
+		private User user;
+		private final int askcode = 12368;
+		private final int likecode = 11111;
+		DataInputStream input;
+		DataOutputStream output;
+		int[] likes = null;
 
-		public HandleAClient(Socket socket) {
+		public HandleAClient(Socket socket, int clientNo) {
 			this.socket = socket;
+			No = "Client " + clientNo + " ";
 		}
 
 		public void run() {
 			try
 			{
-				// DataInputStream input = new
-				// DataInputStream(socket.getInputStream());
-				// DataOutputStream output=new
-				// DataOutputStream(socket.getOutputStream());
-				DataInputStream input = new DataInputStream(socket.getInputStream());
-				DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-				while (true)
+				if (start())
 				{
-					int type = input.readInt();
-					if (type == 1)
-					{ // µÇÂ½
-						String username = input.readUTF();
-						String password = input.readUTF();
-						SignObject so = new SignObject(username, password);
-						boolean success = so.confirm();
-						text.append(so.toString() + " signin " + success + "\n");
-						int rtn = (success) ? 1 : 0;
-						output.writeInt(rtn);
-						if (success)
+					users.put(user.getId(), 1);
+					likes = user.getLikes();
+					for (int i = 0; i < likes.length; i++)
+						output.writeInt(likes[i]);
+					while (true)
+					{
+						try
 						{
-
-						}
-					} else if (type == 2)
-					{ // ×¢²á
-						text.append("signup...\n");
-						String username = input.readUTF();
-						String password = input.readUTF();
-						SignObject so = new SignObject(username, password);
-						boolean success = so.confirmName();
-						text.append(so.toString() + " signup " + success + "\n");
-						int rtn = (success) ? 1 : 0;
-						output.writeInt(rtn);
-						if (success)
+							int response = input.readInt();
+							if (response == askcode)
+							{
+								output.writeInt(askcode);
+								int length = users.size();
+								output.writeInt(length);
+								for (Entry<Integer, Integer> entry : users.entrySet())
+								{
+									output.writeUTF(database.getName(entry.getKey()));
+									output.writeInt(entry.getValue());
+								}
+							} else if (response == likecode)
+							{
+								likes[0] = input.readInt();
+								likes[1] = input.readInt();
+								likes[2] = input.readInt();
+								synchronized (text)
+								{
+									text.append(No + "update likes: " + likes[0] + " " + likes[1] + " " + likes[2]);
+								}
+								if (user.setLikes(likes) == true)
+									output.writeInt(likecode);
+								else
+									output.writeInt(likecode + 1);
+							}
+						} catch (IOException ex)
 						{
-
+							// ex.printStackTrace();
+							break;
 						}
-					} else if (type == 3)
-					{ // ·¢ËÍÏûÏ¢
-
 					}
+					users.put(user.getId(), 0);
 				}
+				socket.close();
 			} catch (IOException ex)
 			{
-				System.err.println(ex);
+				ex.printStackTrace();
 			}
-			text.append("socket closed\n");
+			synchronized (text)
+			{
+				text.append(No + "closed\n");
+			}
+		}
+
+		private boolean start() {
+			try
+			{
+				input = new DataInputStream(socket.getInputStream());
+				output = new DataOutputStream(socket.getOutputStream());
+				int type = input.readInt();
+				if (type == 1)
+				{ // µÇÂ½
+					synchronized (text)
+					{
+						text.append(No + "signin...\n");
+					}
+					String username = input.readUTF();
+					String password = input.readUTF();
+					user = new User(username, password);
+					boolean success = user.confirm();
+					synchronized (text)
+					{
+						text.append(No + user.toString() + " signin " + success + "\n");
+					}
+					int rtn = (success) ? 1 : 0;
+					output.writeInt(rtn);
+					if (success)
+						return true;
+					else
+						return false;
+				} else if (type == 2)
+				{ // ×¢²á
+					synchronized (text)
+					{
+						text.append(No + "signup...\n");
+					}
+					String username = input.readUTF();
+					String password = input.readUTF();
+					user = new User(username, password);
+					boolean success = user.confirmName();
+					synchronized (text)
+					{
+						text.append(No + user.toString() + " signup " + success + "\n");
+					}
+					int rtn = (success) ? 1 : 0;
+					output.writeInt(rtn);
+					if (success)
+						return true;
+					else
+						return false;
+				} else
+					return false;
+			} catch (IOException ex)
+			{
+				ex.printStackTrace();
+				return false;
+			}
 		}
 	}
 
-	private class SignObject implements Serializable {
+	public class User {
+		private int id;
 		private String username;
 		private String password;
 
-		public SignObject(String name, String pwd) {
-			username = name;
-			password = pwd;
+		User(String username, String password) {
+			this.username = username;
+			this.password = password;
 		}
 
 		public boolean confirmName() {
-			return true;
+			if (database.checkname(username))
+				return false;
+			else
+			{
+				id = database.sql_signup(username, password);
+				return true;
+			}
 		}
 
 		public boolean confirm() {
-			return true;
+			id = database.sql_signin(username, password);
+			if (id == -1)
+				return false;
+			else
+				return true;
+		}
+
+		public int getId() {
+			return id;
 		}
 
 		public String toString() {
-			String rt = "username:" + username + "\t" + "password:" + password;
+			String rt = "id:" + id + "\t" + "username:" + username + "\t" + "password:" + password;
 			return rt;
+		}
+
+		public int[] getLikes() {
+			int[] likes = database.sql_likes(id);
+			if (likes.length != 3)
+				return null;
+			else
+				return likes;
+		}
+
+		public boolean setLikes(int[] likes) {
+			return database.set_likes(id, likes);
 		}
 	}
 }
