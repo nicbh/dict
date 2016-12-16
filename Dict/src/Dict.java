@@ -10,10 +10,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
 
-<<<<<<< HEAD
-
-=======
->>>>>>> ae7cae21ff5ddb274a792b9c3ab114f0d82ce5f0
 public class Dict extends JFrame {
 	private JTabbedPane pane = new JTabbedPane(JTabbedPane.TOP);
 	private JTextField dic = new JTextField(30);
@@ -103,6 +99,7 @@ public class Dict extends JFrame {
 		pane.setTabComponentAt(2, faxian);
 		add(pane, BorderLayout.CENTER);
 
+		
 		// ¸øjbtÌí¼Ó¼àÌýÆ÷
 		bsearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
