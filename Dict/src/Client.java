@@ -16,37 +16,30 @@ public class Client {
 	}
 
 	private void connect() {
-		try
-		{
+		try {
 			socket = new Socket(host, port);
 			input = new DataInputStream(socket.getInputStream());
 			output = new DataOutputStream(socket.getOutputStream());
-		} catch (IOException ex)
-		{
+		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 	}
 
 	public class clientConnect implements Runnable {
 		public void run() {
-			try
-			{
+			try {
 				int[] like = Dict.likes;
 				like[0] = input.readInt();
 				like[1] = input.readInt();
 				like[2] = input.readInt();
 				System.out.printf("%d %d %d\n", like[0], like[1], like[2]);
-				while (connecting)
-				{
-					synchronized (output)
-					{
+				while (connecting) {
+					synchronized (output) {
 						output.writeInt(askcode);
 						int res = input.readInt();
-						if (res == askcode)
-						{
+						if (res == askcode) {
 							int length = input.readInt();
-							for (int i = 0; i < length; i++)
-							{
+							for (int i = 0; i < length; i++) {
 								String name = input.readUTF();
 								int active = input.readInt();
 								// System.out.println(name + " " + active);
@@ -55,8 +48,7 @@ public class Client {
 					}
 					Thread.sleep(1000);
 				}
-			} catch (Exception ex)
-			{
+			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 		}
@@ -70,8 +62,7 @@ public class Client {
 	public int signin(String username, String password) {
 		connect();
 		int type = 1;
-		try
-		{
+		try {
 			output.writeInt(type);
 			output.writeUTF(username);
 			output.writeUTF(password);
@@ -79,8 +70,7 @@ public class Client {
 			if (success == 1)
 				start();
 			return success;
-		} catch (Exception ex)
-		{
+		} catch (Exception ex) {
 			System.err.println(ex);
 			return -1;
 		}
@@ -89,8 +79,7 @@ public class Client {
 	public int signup(String username, String password) {
 		connect();
 		int type = 2;
-		try
-		{
+		try {
 			output.writeInt(type);
 			output.writeUTF(username);
 			output.writeUTF(password);
@@ -98,23 +87,21 @@ public class Client {
 			if (success == 1)
 				start();
 			return success;
-		} catch (Exception ex)
-		{
+		} catch (Exception ex) {
 			System.err.println(ex);
 			return -1;
 		}
 	}
 
 	public boolean like() {// 0bing 1youdao 2jinshan
+		if (!connecting)
+			return true;
 		int[] like = Dict.likes;
-		if (like.length == 3)
-		{
+		if (like.length == 3) {
 			int type = 11111;
-			try
-			{
+			try {
 				int success = 0;
-				synchronized (output)
-				{
+				synchronized (output) {
 					output.writeInt(type);
 					for (int i = 0; i != like.length; i++)
 						output.writeInt(like[i]);
@@ -123,18 +110,15 @@ public class Client {
 				}
 				if (success == type)
 					return true;
-				else
-				{
+				else {
 					System.err.println("client.like wrong");
 					return false;
 				}
-			} catch (IOException ex)
-			{
+			} catch (IOException ex) {
 				System.err.println(ex);
 				return false;
 			}
-		} else
-		{
+		} else {
 			System.err.println("client.like wrong " + like.length);
 			return false;
 		}
