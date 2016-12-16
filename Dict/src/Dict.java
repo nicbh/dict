@@ -1,5 +1,6 @@
 
 import java.io.*;
+import java.io.ObjectOutputStream.PutField;
 import java.util.regex.*;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -25,19 +26,24 @@ public class Dict extends JFrame {
 	// private JScrollPane[] jsp = new JScrollPane[3];
 	private TitledBorder[] border = new TitledBorder[3];
 	private String[] dicts = { "必应", "有道", "金山" };
-	private int[] order = { 2, 0, 1 };
+	private int[] order = { 0, 1, 2 };
 	private JScrollPane[] jsp = new JScrollPane[3];
+	private loginPanel lPanel = new loginPanel();
 
-	private boolean[] is = new boolean[3];
+	public static int[] likes = { 0, 0, 0 }; // like count
+	private boolean[] like = { false, false, false }; // like flag
+	private String[] content = new String[3];
+	private boolean[] likeable = { false, false, false };
+
+	private final String full = "\u2764";
+	private final String empty = "\u2661";
+
 	private boolean isbing = true;
 	private boolean isyoudao = true;
 	private boolean isjinshan = true;
 
 	Dict() {
 		super();
-		is[0] = true;
-		is[1] = true;
-		is[2] = true;
 		Font font = new Font("TimesRoman", Font.BOLD, 20);
 		Font font1 = new Font("TimesRoman", Font.BOLD, 15);
 		Font font2 = new Font("Dialog", Font.BOLD, 15);
@@ -56,9 +62,11 @@ public class Dict extends JFrame {
 		bing.setFont(font3);
 		youdao.setFont(font3);
 		jinshan.setFont(font3);
+		box01.add(Box.createHorizontalGlue());
 		box01.add(bing);
 		box01.add(youdao);
 		box01.add(jinshan);
+		box01.add(Box.createHorizontalGlue());
 
 		border[0] = new TitledBorder(dicts[order[0]]);
 		border[0].setTitleFont(font1);
@@ -102,14 +110,13 @@ public class Dict extends JFrame {
 		chachi.setFont(font);
 		pane.setTabComponentAt(0, chachi);
 
-		JPanel panel1 = new JPanel();
+		JPanel panel1 = new transPanel();
 		pane.addTab("", null, panel1, null);
 		JLabel fanyi = new JLabel("   翻译   ");
 		fanyi.setFont(font);
 		pane.setTabComponentAt(1, fanyi);
 
-		loginPanel panel2 = new loginPanel();
-		pane.addTab("", null, panel2, null);
+		pane.addTab("", null, lPanel, null);
 		JLabel faxian = new JLabel("   发现   ");
 		faxian.setFont(font);
 		pane.setTabComponentAt(2, faxian);
@@ -136,27 +143,120 @@ public class Dict extends JFrame {
 		bing.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				isbing = !isbing;
+				likeable[0] = isbing;
 			}
 		});
 		youdao.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				isyoudao = !isyoudao;
+				likeable[1] = isyoudao;
 			}
 		});
 		jinshan.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				isjinshan = !isjinshan;
+				likeable[2] = isjinshan;
 			}
 		});
+		text[0].addMouseListener(new mouse(0));
+		text[1].addMouseListener(new mouse(1));
+		text[2].addMouseListener(new mouse(2));
+	}
+
+	private class mouse extends MouseAdapter {
+		private int index;
+
+		mouse(int i) {
+			index = i;
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// TODO Auto-generated method stub
+			int type = e.getButton();// 得到按下的鼠标键
+			if (type == MouseEvent.BUTTON1)// 判断是鼠标左键按下
+			{
+				int idx = order[index];
+				if (likeable[idx])
+				{
+					// boolean swap = false;
+					like[idx] = !like[idx];
+					if (like[idx] == true)
+					{
+						likes[idx]++;
+						if (!lPanel.client.like())
+						{
+							likes[idx]--;
+							like[idx] = !like[idx];
+						}
+						// swap = putOrder();
+						// idx = order[index];
+					} else
+					{
+						likes[idx]--;
+						if (!lPanel.client.like())
+						{
+							likes[idx]++;
+							like[idx] = !like[idx];
+						}
+						// swap = putOrder();
+						// idx = order[index];
+					}
+
+					String title = dicts[idx];
+					if (like[idx])
+					{
+						title = title + full;
+					} else
+					{
+						title = title + empty;
+					}
+					border[index].setTitle(title);
+					text[index].setText(text[index].getText());
+					// if (swap)
+					// {
+					// for (int i = 0; i < order.length; i++)
+					// {
+					// int ii = order[i];
+					// title = dicts[ii];
+					// if (likeable[ii])
+					// {
+					// if (like[ii])
+					// {
+					// title = title + full;
+					// } else
+					// {
+					// title = title + empty;
+					// }
+					// }
+					// border[i].setTitle(title);
+					// text[i].setText(content[ii]);
+					// }
+					// }
+					System.out.printf("%d %d %d\n", likes[0], likes[1], likes[2]);
+				}
+			} else if (type == MouseEvent.BUTTON3)
+			{// 判断是鼠标右键按下
+
+			}
+		}
 	}
 
 	void getDict() {
 		String str = dic.getText().trim();
-		// if (!str.matches("[1-9a-zA-Z,.;'\":<>{}].*"))
-		// hint.setText("wrong");
-		// else
+		if (str.length() == 0 || str.matches("\\W|\\d|_"))
+			hint.setText("请输入正确的格式：字母或汉字");
+		else
 		{
+			try
+			{
+				str = URLEncoder.encode(str, "UTF-8");
+			} catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
 			hint.setText(" ");
+			putOrder();
 			int bing = 0, youdao = 0, jinshan = 0;
 			for (int i = 0; i < order.length; i++)
 			{
@@ -166,23 +266,74 @@ public class Dict extends JFrame {
 					youdao = i;
 				if (order[i] == 2)
 					jinshan = i;
+				like[i] = false;
 			}
 			if (isbing)
 			{
-				text[bing].setText("载入中...");
-				new getPage("http://cn.bing.com/dict/search?q=" + str, 0, text[bing]).execute();
+				likeable[0] = true;
+				border[bing].setTitle(dicts[0] + empty);
+				content[0] = "载入中...";
+				text[bing].setText(content[0]);
+				new getPage("http://cn.bing.com/dict/search?q=" + str, 0, text[bing], content).execute();
+			} else
+			{
+				likeable[0] = false;
+				border[bing].setTitle(dicts[0]);
+				content[0] = "未选择复选框";
+				text[bing].setText(content[0]);
 			}
 			if (isyoudao)
 			{
-				text[youdao].setText("载入中...");
-				new getPage("http://youdao.com/w/" + str + "/#keyfrom=dict2.index", 1, text[youdao]).execute();
+				likeable[1] = true;
+				border[youdao].setTitle(dicts[1] + empty);
+				content[1] = "载入中...";
+				text[youdao].setText(content[1]);
+				new getPage("http://youdao.com/w/" + str + "/#keyfrom=dict2.index", 1, text[youdao], content).execute();
+			} else
+			{
+				likeable[1] = false;
+				border[youdao].setTitle(dicts[1]);
+				content[1] = "未选择复选框";
+				text[youdao].setText(content[1]);
 			}
 			if (isjinshan)
 			{
-				text[jinshan].setText("载入中...");
-				new getPage("http://www.iciba.com/" + str, 2, text[jinshan]).execute();
+				likeable[2] = true;
+				border[jinshan].setTitle(dicts[2] + empty);
+				content[1] = "载入中...";
+				text[jinshan].setText(content[1]);
+				new getPage("http://www.iciba.com/" + str, 2, text[jinshan], content).execute();
+			} else
+			{
+				likeable[2] = false;
+				border[jinshan].setTitle(dicts[2]);
+				content[2] = "未选择复选框";
+				text[jinshan].setText(content[2]);
 			}
 		}
+	}
+
+	public boolean putOrder() {
+		int[] likess = likes.clone();
+		int[] orders = { 0, 1, 2 };
+		for (int i = 0; i < likess.length; i++)
+		{
+			for (int j = 0; j < likess.length - 1; j++)
+			{
+				if (likess[j] < likess[j + 1])
+				{
+					int t = likess[j];
+					likess[j] = likess[j + 1];
+					likess[j + 1] = t;
+					t = orders[j];
+					orders[j] = orders[j + 1];
+					orders[j + 1] = t;
+				}
+			}
+		}
+		boolean swap = !order.equals(orders);
+		order = orders.clone();
+		return swap;
 	}
 
 	public static void main(String[] args) {
@@ -194,5 +345,4 @@ public class Dict extends JFrame {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
-
 }

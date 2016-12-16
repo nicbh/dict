@@ -6,22 +6,26 @@ import javax.swing.*;
 public class getPage extends SwingWorker<String, Object> {
 	private String Url;
 	private int index;
-	private JEditorPane r;
+	private JEditorPane rst;
+	private String[] ctt;
 
-	getPage(String strUrl, int i, JEditorPane result) {
+	getPage(String strUrl, int i, JEditorPane result, String[] content) {
 		Url = strUrl;
 		index = i;
-		r = result;
+		rst = result;
+		ctt = content;
 	}
 
 	protected void done() {
 		try
 		{
-			r.setText(get());
+			ctt[index] = get();
+			rst.setText(ctt[index]);
 			System.out.println(index + " complete");
 		} catch (Exception ex)
 		{
-			r.setText("连接不到在线词典");
+			ctt[index] = "连接不到在线词典";
+			rst.setText(ctt[index]);
 		}
 	}
 

@@ -12,7 +12,7 @@ public class loginPanel extends JPanel {
 	private JButton signup = new JButton("зЂВс");
 	private JLabel label = new JLabel();
 	private Font font = new Font("TimesRoman", Font.BOLD, 18);
-	private Client client = new Client();
+	public Client client = new Client();
 
 	loginPanel() {
 		Box box20 = Box.createVerticalBox();

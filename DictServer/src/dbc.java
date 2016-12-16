@@ -94,4 +94,43 @@ public class dbc {
 			return -1;
 		}
 	}
+
+	public int[] sql_likes(int id) {
+		try
+		{
+			ps2.setInt(1, id);
+			ResultSet rset = ps2.executeQuery();
+			if (rset.next())
+			{
+				int[] like = new int[3];
+				like[0] = rset.getInt(2);
+				like[1] = rset.getInt(3);
+				like[2] = rset.getInt(4);
+				return like;
+			}
+			return null;
+		} catch (SQLException ex)
+		{
+			ex.printStackTrace();
+			return null;
+		}
+	}
+
+	public boolean set_likes(int id, int[] likes) {
+		if (likes.length != 3)
+			return false;
+		try
+		{
+			ps3.setInt(1, likes[0]);
+			ps3.setInt(2, likes[1]);
+			ps3.setInt(3, likes[2]);
+			ps3.setInt(4, id);
+			ps3.executeUpdate();
+			return true;
+		} catch (SQLException ex)
+		{
+			ex.printStackTrace();
+			return false;
+		}
+	}
 }

@@ -31,18 +31,26 @@ public class Client {
 		public void run() {
 			try
 			{
+				int[] like = Dict.likes;
+				like[0] = input.readInt();
+				like[1] = input.readInt();
+				like[2] = input.readInt();
+				System.out.printf("%d %d %d\n", like[0], like[1], like[2]);
 				while (connecting)
 				{
-					output.writeInt(askcode);
-					int res = input.readInt();
-					if (res == askcode)
+					synchronized (output)
 					{
-						int length = input.readInt();
-						for (int i = 0; i < length; i++)
+						output.writeInt(askcode);
+						int res = input.readInt();
+						if (res == askcode)
 						{
-							String name = input.readUTF();
-							int active = input.readInt();
-							System.out.println(name + " " + active);
+							int length = input.readInt();
+							for (int i = 0; i < length; i++)
+							{
+								String name = input.readUTF();
+								int active = input.readInt();
+								// System.out.println(name + " " + active);
+							}
 						}
 					}
 					Thread.sleep(1000);
@@ -97,32 +105,39 @@ public class Client {
 		}
 	}
 
-	public static void like(int index) {// 0bing 1youdao 2jinshan
-		if (index == 0 || index == 1 | index == 2)
+	public boolean like() {// 0bing 1youdao 2jinshan
+		int[] like = Dict.likes;
+		if (like.length == 3)
 		{
+			int type = 11111;
 			try
 			{
-				int type = 3;
-				Socket socket = new Socket(host, port);
-				DataInputStream input = new DataInputStream(socket.getInputStream());
-				DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-				output.writeInt(type);
-				output.writeInt(index);
-				int success = input.readInt();
-				socket.close();
-				if (success == 1)
-					return;
+				int success = 0;
+				synchronized (output)
+				{
+					output.writeInt(type);
+					for (int i = 0; i != like.length; i++)
+						output.writeInt(like[i]);
+					success = input.readInt();
+					System.out.println("success " + success);
+				}
+				if (success == type)
+					return true;
 				else
 				{
 					System.err.println("client.like wrong");
-					return;
+					return false;
 				}
 			} catch (IOException ex)
 			{
 				System.err.println(ex);
+				return false;
 			}
 		} else
-			System.err.println("client.like wrong");
+		{
+			System.err.println("client.like wrong " + like.length);
+			return false;
+		}
 	}
 
 	public static void send(String s) {

@@ -66,8 +66,10 @@ public class Server extends JFrame {
 		private String No;
 		private User user;
 		private final int askcode = 12368;
+		private final int likecode = 11111;
 		DataInputStream input;
 		DataOutputStream output;
+		int[] likes = null;
 
 		public HandleAClient(Socket socket, int clientNo) {
 			this.socket = socket;
@@ -80,6 +82,9 @@ public class Server extends JFrame {
 				if (start())
 				{
 					users.put(user.getId(), 1);
+					likes = user.getLikes();
+					for (int i = 0; i < likes.length; i++)
+						output.writeInt(likes[i]);
 					while (true)
 					{
 						try
@@ -95,10 +100,23 @@ public class Server extends JFrame {
 									output.writeUTF(database.getName(entry.getKey()));
 									output.writeInt(entry.getValue());
 								}
+							} else if (response == likecode)
+							{
+								likes[0] = input.readInt();
+								likes[1] = input.readInt();
+								likes[2] = input.readInt();
+								synchronized (text)
+								{
+									text.append(No + "update likes: " + likes[0] + " " + likes[1] + " " + likes[2]);
+								}
+								if (user.setLikes(likes) == true)
+									output.writeInt(likecode);
+								else
+									output.writeInt(likecode + 1);
 							}
 						} catch (IOException ex)
 						{
-							ex.printStackTrace();
+							// ex.printStackTrace();
 							break;
 						}
 					}
@@ -206,6 +224,18 @@ public class Server extends JFrame {
 		public String toString() {
 			String rt = "id:" + id + "\t" + "username:" + username + "\t" + "password:" + password;
 			return rt;
+		}
+
+		public int[] getLikes() {
+			int[] likes = database.sql_likes(id);
+			if (likes.length != 3)
+				return null;
+			else
+				return likes;
+		}
+
+		public boolean setLikes(int[] likes) {
+			return database.set_likes(id, likes);
 		}
 	}
 }
