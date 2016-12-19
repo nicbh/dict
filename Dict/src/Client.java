@@ -92,6 +92,17 @@ public class Client {
 			return -1;
 		}
 	}
+	
+	/*public int sentCard(String toUser,String path){
+		connect();
+		byte[] 
+		int type = 4;
+		try{
+			File file = new File(path);
+			
+		}
+		return 1;
+	}*/
 
 	public boolean like() {// 0bing 1youdao 2jinshan
 		if (!connecting)
