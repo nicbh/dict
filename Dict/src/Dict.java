@@ -16,7 +16,9 @@ import java.awt.event.*;
 import java.net.*;
 
 public class Dict extends JFrame {
+	private Dict dict;
 	private JTabbedPane pane = new JTabbedPane(JTabbedPane.TOP);
+	private int index = 0;
 	private JTextField dic = new JTextField(30);
 	private JLabel hint = new JLabel(" ");
 	private JCheckBox bing = new JCheckBox("必应", true);
@@ -28,14 +30,14 @@ public class Dict extends JFrame {
 	private String[] dicts = { "必应", "有道", "金山" };
 	private int[] order = { 0, 1, 2 };
 	private JScrollPane[] jsp = new JScrollPane[3];
-	private loginPanel lPanel = new loginPanel();
+	private loginPanel lPanel;
 
 	public static int[] likes = { 0, 0, 0 }; // like count
 	private boolean[] like = { false, false, false }; // like flag
 	private String[] content = new String[3];
 	private boolean[] likeable = { false, false, false };
 
-	private final String full = "\u2764";
+	private final String full = "\u2665";//"\u2764";
 	private final String empty = "\u2661";
 
 	private boolean isbing = true;
@@ -44,6 +46,7 @@ public class Dict extends JFrame {
 
 	Dict() {
 		super();
+		lPanel = new loginPanel(this);
 		Font font = new Font("TimesRoman", Font.BOLD, 20);
 		Font font1 = new Font("TimesRoman", Font.BOLD, 15);
 		Font font2 = new Font("Dialog", Font.BOLD, 15);
@@ -73,7 +76,10 @@ public class Dict extends JFrame {
 		text[0] = new JEditorPane("text/html", "");
 		text[0].setBorder(border[0]);
 		text[0].setEditable(false);
+		text[0].setOpaque(false);
 		jsp[0] = new JScrollPane(text[0]);
+		jsp[0].setOpaque(false);
+		jsp[0].getViewport().setOpaque(false);
 		jsp[0].setPreferredSize(new Dimension(500, 200));
 		// text[0].setSize(40,5);
 		border[1] = new TitledBorder(dicts[order[1]]);
@@ -81,6 +87,7 @@ public class Dict extends JFrame {
 		text[1] = new JEditorPane("text/html", "");
 		text[1].setBorder(border[1]);
 		text[1].setEditable(false);
+		text[1].setOpaque(false);
 		jsp[1] = new JScrollPane(text[1]);
 		jsp[1].setPreferredSize(new Dimension(500, 200));
 		// text[1].setSize(40,5);
@@ -89,6 +96,7 @@ public class Dict extends JFrame {
 		text[2] = new JEditorPane("text/html", "");
 		text[2].setBorder(border[2]);
 		text[2].setEditable(false);
+		text[2].setOpaque(false);
 		jsp[2] = new JScrollPane(text[2]);
 		jsp[2].setPreferredSize(new Dimension(500, 200));
 		// text[2].setSize(40,5);
@@ -122,7 +130,25 @@ public class Dict extends JFrame {
 		pane.setTabComponentAt(2, faxian);
 		add(pane, BorderLayout.CENTER);
 
-		
+		pane.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				// TODO Auto-generated method stub
+				if (lPanel.login == false)
+				{
+					int sindex = pane.getSelectedIndex();
+					System.out.println(sindex);
+					if (sindex == 2)
+					{
+						pane.setSelectedIndex(index);
+						dict.setEnabled(false);
+						lPanel.click();
+					} else
+						index = sindex;
+				}
+			}
+		});
 		// 给jbt添加监听器
 		bsearch.addActionListener(new ActionListener() {
 
@@ -338,8 +364,13 @@ public class Dict extends JFrame {
 		return swap;
 	}
 
+	public void setWindow(Dict dic) {
+		dict = dic;
+	}
+
 	public static void main(String[] args) {
-		JFrame frame = new Dict();
+		Dict frame = new Dict();
+		frame.setWindow(frame);
 		frame.setSize(700, 800);
 		frame.setResizable(false);
 		frame.setTitle("Dict");

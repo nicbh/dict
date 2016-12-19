@@ -25,6 +25,7 @@ public class transPanel extends JPanel {
 		trans.setFont(font);
 		trans.setLineWrap(true);
 		trans.setEditable(false);
+		trans.setOpaque(false);
 		JScrollPane jsp1 = new JScrollPane(text);
 		JScrollPane jsp2 = new JScrollPane(trans);
 
