@@ -20,7 +20,7 @@ public class loginPanel extends JPanel {
 	private JTextArea send = new JTextArea();
 
 	public Client client = new Client(this);
-	public boolean login = true;
+	public boolean login = false;
 
 	private logindlg lgn = new logindlg();
 

@@ -33,6 +33,7 @@ public class WordCard extends JFrame {
 	private Color color = Color.BLUE;
 	private BufferedImage image = null;
 	private Box box = null;
+	private BufferedImage wordImage = null;
 	
 	WordCard(String word,BufferedImage wordimage){
 		this.setSize(600,450);
@@ -50,7 +51,8 @@ public class WordCard extends JFrame {
 		}catch(IOException e){
 			e.printStackTrace();
 		}
-		addWordImage(wordimage);
+		wordImage = resizeImage(wordimage,image.getWidth()-15,image.getHeight()-290);
+		addWordImage(wordImage);
 		ImageIcon imageicon = new ImageIcon(image);
 		
 		//jp = new JPanel(new GridLayout(6,1,5,5));
@@ -121,7 +123,7 @@ public class WordCard extends JFrame {
 		jbt1.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				String str = jta.getText();
-				addWords(image, alpha, font, fontStyle, fontSize, color, str, 20, 250);
+				addWords(image, alpha, font, fontStyle, fontSize, color, str, 20, 230);
 					//BufferedImage temp = ImageIO.read(new File(path));
 				ImageIcon imageIcon = new ImageIcon(image);
 				jlb1.setIcon(imageIcon);
@@ -211,9 +213,11 @@ public class WordCard extends JFrame {
 	}
 	*/
 	public BufferedImage resizeImage(BufferedImage image1,int width,int height){
+		System.out.println(image1.getWidth()+ "+" + image1.getHeight());
 		BufferedImage tag = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
 		Graphics g = tag.getGraphics();
 		g.drawImage(image1, 0, 0, width, height, null);
+		System.out.println(tag.getWidth()+ "+" + tag.getHeight());
 		g.dispose();
 		return  tag;
 	}
@@ -222,7 +226,7 @@ public class WordCard extends JFrame {
 		if(image1 == null)
 			return;
 		Graphics g = image.getGraphics();
-		g.drawImage(image1, image.getWidth()/2 - image1.getWidth()/2, 290, null);
+		g.drawImage(image1, image.getWidth()/2 - image1.getWidth()/2, 250, null);
 		g.dispose();
 	}
 	
