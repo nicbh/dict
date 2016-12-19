@@ -49,7 +49,7 @@ public class Dict extends JFrame {
 	private boolean isjinshan = true;
 
 	private BufferedImage image = null;
-	
+
 	Dict() {
 		super();
 		lPanel = new loginPanel(this);
@@ -274,20 +274,18 @@ public class Dict extends JFrame {
 				}
 			} else if (type == MouseEvent.BUTTON3)
 			{// 判断是鼠标右键按下
-<<<<<<< HEAD
-				new WordCard(dic.getText().trim());
+				if (likeable[index])
+				{
+					if (content[0] != "载入中...")
+					{
+						HtmlImageGenerator ig = new HtmlImageGenerator();
+						ig.loadHtml("<h2><strong>" + dic.getText().trim() + "<></h2>" + content[0]);
+						image = ig.getBufferedImage();
+						// "<h2><strong>" + "apple" + "<></h2>" + "<p>有道</p>"
 
-=======
-				if(content[0]!="载入中..."){
-					HtmlImageGenerator ig = new HtmlImageGenerator();
-					ig.loadHtml("<h2><strong>" + dic.getText().trim() + "<></h2>"+content[0]);
-					image = ig.getBufferedImage();
-					// "<h2><strong>" + "apple" + "<></h2>" + "<p>有道</p>"
-					
+					}
+					new WordCard(dic.getText().trim(), image);
 				}
-				new WordCard(dic.getText().trim(),image);
-				
->>>>>>> 73ea20bac7cd104575f3cc8ee2175424b8fd382d
 			}
 		}
 	}
@@ -325,9 +323,10 @@ public class Dict extends JFrame {
 				content[0] = "载入中...";
 				text[bing].setText(content[0]);
 				new getPage("http://cn.bing.com/dict/search?q=" + str, 0, text[bing], content).execute();
-				/*HtmlImageGenerator ig = new HtmlImageGenerator();
-				ig.loadHtml(content[0]);
-				image = ig.getBufferedImage();*/
+				/*
+				 * HtmlImageGenerator ig = new HtmlImageGenerator();
+				 * ig.loadHtml(content[0]); image = ig.getBufferedImage();
+				 */
 			} else
 			{
 				likeable[0] = false;
@@ -342,9 +341,10 @@ public class Dict extends JFrame {
 				content[1] = "载入中...";
 				text[youdao].setText(content[1]);
 				new getPage("http://youdao.com/w/" + str + "/#keyfrom=dict2.index", 1, text[youdao], content).execute();
-				/*HtmlImageGenerator ig = new HtmlImageGenerator();
-				ig.loadHtml(content[1]);
-				image = ig.getBufferedImage();*/
+				/*
+				 * HtmlImageGenerator ig = new HtmlImageGenerator();
+				 * ig.loadHtml(content[1]); image = ig.getBufferedImage();
+				 */
 			} else
 			{
 				likeable[1] = false;
@@ -359,9 +359,10 @@ public class Dict extends JFrame {
 				content[1] = "载入中...";
 				text[jinshan].setText(content[1]);
 				new getPage("http://www.iciba.com/" + str, 2, text[jinshan], content).execute();
-				/*HtmlImageGenerator ig = new HtmlImageGenerator();
-				ig.loadHtml(content[2]);
-				image = ig.getBufferedImage();*/
+				/*
+				 * HtmlImageGenerator ig = new HtmlImageGenerator();
+				 * ig.loadHtml(content[2]); image = ig.getBufferedImage();
+				 */
 			} else
 			{
 				likeable[2] = false;
