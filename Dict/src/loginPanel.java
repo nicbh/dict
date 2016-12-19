@@ -1,24 +1,18 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.io.Serializable;
-import java.net.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
+import java.util.regex.*;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.text.Document;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.xml.parsers.DocumentBuilder;
-
-import org.xml.sax.DocumentHandler;
+import javax.swing.event.*;
+import javax.swing.text.*;
 
 // 第三个面板的面板类
 public class loginPanel extends JPanel {
@@ -260,7 +254,24 @@ public class loginPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
+				JFileChooser fc = new JFileChooser(WordCard.pdir);
+				int returnval = fc.showOpenDialog(null);
+				if (returnval == JFileChooser.APPROVE_OPTION)
+				{
+					File f = fc.getSelectedFile();
+					String fileName = f.getName();
+					String filePath = fc.getSelectedFile().getAbsolutePath();
+					try
+					{
+						FileInputStream in = new FileInputStream(f);
+						
 
+					} catch (IOException a)
+					{
+						a.printStackTrace();
+					}
+
+				}
 			}
 		});
 
@@ -306,10 +317,10 @@ public class loginPanel extends JPanel {
 				docs.put(id, new StringBuffer(str));
 			}
 
-			System.out.println("point::"+indexname+" "+id);
+			System.out.println("point::" + indexname + " " + id);
 			if (!indexname.equals(id))
 				msg.put(id, true);
-//			setIndex(lIndex);
+			// setIndex(lIndex);
 			refresh();
 		} catch (Exception ex)
 		{

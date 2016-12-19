@@ -1,15 +1,6 @@
 
-import java.io.*;
-import java.io.ObjectOutputStream.PutField;
-import java.util.regex.*;
-import java.util.*;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.text.*;
 
 import gui.ava.html.image.generator.HtmlImageGenerator;
 
@@ -276,10 +267,11 @@ public class Dict extends JFrame {
 			{// 判断是鼠标右键按下
 				if (likeable[index])
 				{
-					if (content[0] != "载入中...")
+					if (content[index] != "载入中..." && content[index] != "查无此词" && content[index] != "连接不到在线词典")
 					{
 						HtmlImageGenerator ig = new HtmlImageGenerator();
-						ig.loadHtml("<h2><strong>" + dic.getText().trim() + "<></h2>" + content[0]);
+						ig.loadHtml("<h2><strong>" + dic.getText().trim() + "      ————" + dicts[order[index]]
+								+ "词典</strong></h2>" + content[index]);
 						image = ig.getBufferedImage();
 						// "<h2><strong>" + "apple" + "<></h2>" + "<p>有道</p>"
 
