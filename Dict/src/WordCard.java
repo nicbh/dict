@@ -43,7 +43,7 @@ public class WordCard extends JFrame {
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setVisible(true);
 		
-		path = "d://temp/init.jpg";
+		path = "init.jpg";
 		
 		try{
 			
