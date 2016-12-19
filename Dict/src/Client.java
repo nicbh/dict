@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.security.MessageDigest;
 
 import javax.swing.JOptionPane;
 
@@ -151,7 +152,7 @@ public class Client {
 			this.username = username;
 			output.writeInt(type);
 			output.writeUTF(username);
-			output.writeUTF(password);
+			output.writeUTF(md5Encode(password));
 			int success = input.readInt();
 			if (success == 1)
 				start();
@@ -171,7 +172,7 @@ public class Client {
 			this.username = username;
 			output.writeInt(type);
 			output.writeUTF(username);
-			output.writeUTF(password);
+			output.writeUTF(md5Encode(password));
 			int success = input.readInt();
 			if (success == 1)
 				start();
@@ -182,6 +183,17 @@ public class Client {
 			return -1;
 		}
 	}
+	
+	/*public int sentCard(String toUser,String path){
+		connect();
+		byte[] 
+		int type = 4;
+		try{
+			File file = new File(path);
+			
+		}
+		return 1;
+	}*/
 
 	public boolean like() {// 0bing 1youdao 2jinshan
 		if (!connecting)
@@ -260,4 +272,34 @@ public class Client {
 			System.err.println(ex);
 		}
 	}
+	
+	
+	/*** 
+	 * MD5加密 生成32位md5码
+	 * @param 待加密字符串
+	 * @return 返回32位md5码
+	 */
+	public static String md5Encode(String inStr) throws Exception {
+	    MessageDigest md5 = null;
+	    try {
+	        md5 = MessageDigest.getInstance("MD5");
+	    } catch (Exception e) {
+	        System.out.println(e.toString());
+	        e.printStackTrace();
+	        return "";
+	    }
+
+	    byte[] byteArray = inStr.getBytes("UTF-8");
+	    byte[] md5Bytes = md5.digest(byteArray);
+        StringBuffer hexValue = new StringBuffer();
+	    for (int i = 0; i < md5Bytes.length; i++) {
+	        int val = ((int) md5Bytes[i]) & 0xff;
+	        if (val < 16) {
+	            hexValue.append("0");
+	        }
+	        hexValue.append(Integer.toHexString(val));
+	    }
+	    return hexValue.toString();
+    }
+	
 }
