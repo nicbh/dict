@@ -264,7 +264,8 @@ public class Dict extends JFrame {
 				}
 			} else if (type == MouseEvent.BUTTON3)
 			{// 判断是鼠标右键按下
-
+				new WordCard(dic.getText().trim());
+				
 			}
 		}
 	}
