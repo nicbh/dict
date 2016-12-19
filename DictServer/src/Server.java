@@ -12,6 +12,7 @@ public class Server extends JFrame {
 	private JTextArea text = new JTextArea();
 	private dbc database = new dbc();
 	private Map<Integer, Integer> users = Collections.synchronizedMap(new HashMap<Integer, Integer>());
+	private HashMap<String, String> sendt = new HashMap<String, String>();
 
 	public static void main(String[] args) {
 		new Server();
@@ -67,6 +68,8 @@ public class Server extends JFrame {
 		private User user;
 		private final int askcode = 12368;
 		private final int likecode = 11111;
+		private final int textcode = 97653;
+		private final int piccode = 86432;
 		DataInputStream input;
 		DataOutputStream output;
 		int[] likes = null;
@@ -92,6 +95,21 @@ public class Server extends JFrame {
 							int response = input.readInt();
 							if (response == askcode)
 							{
+								String name = user.getName();
+								synchronized (sendt)
+								{
+									if (sendt.containsKey(name) && sendt.get(name) != null)
+									{
+										String content = sendt.get(name);
+										String nm = content.substring(0, content.indexOf(' '));
+										output.writeInt(textcode);
+										output.writeUTF(nm);
+										output.writeUTF(content);
+										int success = input.readInt();
+										if (success == textcode)
+											sendt.put(name, null);
+									}
+								}
 								output.writeInt(askcode);
 								int length = users.size();
 								output.writeInt(length);
@@ -113,6 +131,20 @@ public class Server extends JFrame {
 									output.writeInt(likecode);
 								else
 									output.writeInt(likecode + 1);
+							} else if (response == textcode)
+							{
+								String name, content;
+								name = input.readUTF();
+								content = input.readUTF();
+								synchronized (sendt)
+								{
+									sendt.put(name, content);
+								}
+								output.writeInt(textcode);
+								synchronized (text)
+								{
+									text.append(No + "sendtext: " + name + "; " + content);
+								}
 							}
 						} catch (IOException ex)
 						{
@@ -221,6 +253,10 @@ public class Server extends JFrame {
 			return id;
 		}
 
+		public String getName() {
+			return username;
+		}
+
 		public String toString() {
 			String rt = "id:" + id + "\t" + "username:" + username + "\t" + "password:" + password;
 			return rt;
@@ -228,6 +264,12 @@ public class Server extends JFrame {
 
 		public int[] getLikes() {
 			int[] likes = database.sql_likes(id);
+//			if (likes == null)
+//			{
+//				int[] like = { 0, 0, 0 };
+//				database.set_likes(id, like);
+//				return like;
+//			}
 			if (likes.length != 3)
 				return null;
 			else

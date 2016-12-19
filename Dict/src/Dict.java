@@ -37,7 +37,7 @@ public class Dict extends JFrame {
 	private String[] content = new String[3];
 	private boolean[] likeable = { false, false, false };
 
-	private final String full = "\u2665";//"\u2764";
+	private final String full = "\u2665";// "\u2764";
 	private final String empty = "\u2661";
 
 	private boolean isbing = true;
@@ -135,18 +135,22 @@ public class Dict extends JFrame {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				// TODO Auto-generated method stub
-				if (lPanel.login == false)
+				int sindex = pane.getSelectedIndex();
+				System.out.println(sindex);
+				if (sindex == 2)
 				{
-					int sindex = pane.getSelectedIndex();
-					System.out.println(sindex);
-					if (sindex == 2)
+					if (!lPanel.login)
 					{
 						pane.setSelectedIndex(index);
 						dict.setEnabled(false);
-						lPanel.click();
-					} else
-						index = sindex;
-				}
+					}
+					lPanel.click();
+					if (lPanel.login)
+					{
+						pane.setSelectedIndex(sindex);
+					}
+				} else
+					index = sindex;
 			}
 		});
 		// 给jbt添加监听器
@@ -265,7 +269,7 @@ public class Dict extends JFrame {
 			} else if (type == MouseEvent.BUTTON3)
 			{// 判断是鼠标右键按下
 				new WordCard(dic.getText().trim());
-				
+
 			}
 		}
 	}
