@@ -47,6 +47,33 @@ public class Client {
 				like[1] = input.readInt();
 				like[2] = input.readInt();
 				System.out.printf("%d %d %d\n", like[0], like[1], like[2]);
+				int length = input.readInt();
+				for (int i = 0; i < length; i++)
+				{
+					String name = input.readUTF();
+					int active = input.readInt();
+					if (userstate.get(name) == null || userstate.get(name) != active)
+					{
+						userstate.put(name, active);
+					}
+				}
+				synchronized (userlist)
+				{
+					Set<Map.Entry<String, Integer>> entrySet = userstate.entrySet();
+					userlist.clear();
+					for (Map.Entry<String, Integer> entry : entrySet)
+					{
+						if (entry.getValue() == 1 && !entry.getKey().equals(username))
+							userlist.add(entry.getKey() + isonline);
+					}
+					for (Map.Entry<String, Integer> entry : entrySet)
+					{
+						if (entry.getValue() == 0 && !entry.getKey().equals(username))
+							userlist.add(entry.getKey() + isoffline);
+					}
+					System.out.println(userlist);
+				}
+				lPanel.refresh();
 				while (connecting)
 				{
 					boolean refresh = false;
@@ -61,10 +88,12 @@ public class Client {
 							content = input.readUTF();
 							lPanel.accText(name, content);
 							output.writeInt(textcode);
+							res = askcode;
+							System.out.println("receive " + name + " " + content);
 						}
 						if (res == askcode)
 						{
-							int length = input.readInt();
+							length = input.readInt();
 							for (int i = 0; i < length; i++)
 							{
 								String name = input.readUTF();
@@ -102,6 +131,7 @@ public class Client {
 			} catch (Exception ex)
 			{
 				ex.printStackTrace();
+				lPanel.login = false;
 				JOptionPane.showMessageDialog(null, "Á¬½ÓÖÐ¶Ï", "´íÎó", JOptionPane.WARNING_MESSAGE);
 			}
 		}
@@ -203,20 +233,20 @@ public class Client {
 					int success = 97654;
 					try
 					{
-						while (success != 97653)
+						// while (success != 97653)
+						// {
+						synchronized (output)
 						{
-							System.out.println(success);
-							synchronized (output)
-							{
-								output.writeInt(type);
-								String name = userlist.get(index);
-								name = name.substring(0, name.length() - 1);
-								output.writeUTF(name);
-								output.writeUTF(s);
-								success = input.readInt();
-							}
-							Thread.sleep(100);
+							output.writeInt(type);
+							String name = userlist.get(index);
+							name = name.substring(0, name.length() - 1);
+							output.writeUTF(name);
+							output.writeUTF(s);
+							success = input.readInt();
 						}
+						System.out.println(success);
+						// Thread.sleep(2000);
+						// }
 					} catch (Exception ex)
 					{
 						System.err.println("client.sendText wrong");

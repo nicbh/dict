@@ -172,12 +172,12 @@ public class loginPanel extends JPanel {
 		users.setOpaque(false);
 		((JComponent) users.getCellRenderer()).setOpaque(false);
 		// users.setBackground(new Color(0, 0, 0, 0));
-		DefaultListModel<String> dlm = new DefaultListModel<String>();
-		dlm.addElement("awdad\u263A");
-		dlm.addElement("awdac\u25CB");
-		users.setModel(dlm);
-		indexname = "awdad";
-		lname.setText("awdad\u263A");
+		// DefaultListModel<String> dlm = new DefaultListModel<String>();
+		// dlm.addElement("awdad\u263A");
+		// dlm.addElement("awdac\u25CB");
+		// users.setModel(dlm);
+		// indexname = "awdad";
+		// lname.setText("awdad\u263A");
 
 		users.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		users.setSelectedIndex(lIndex);
@@ -197,34 +197,51 @@ public class loginPanel extends JPanel {
 				{
 					if (e.getValueIsAdjusting())
 					{
-						Document doc = accept.getDocument();
-						docs.put(indexname, new StringBuffer(doc.getText(0, doc.getLength())));
-					} else
+
+						// Document doc = accept.getDocument();
+						// String content = doc.getText(0, doc.getLength());
+						// docs.put(indexname, new StringBuffer(content));
+
+						//
+					} else if (!e.getValueIsAdjusting())
 					{
 						int index = users.getSelectedIndex();
 						if (index < 0)
-							return;
-						if (index != lIndex)
-						{
-							lIndex = index;
-							indexname = users.getSelectedValue();
-							if (indexname == null)
-								return;
-							Pattern p = Pattern.compile("\\w+");
-							Matcher m = p.matcher(indexname);
-							if (!m.find())
-								return;
-							indexname = m.group();
-							//indexname = indexname.substring(0, indexname.length() - 1);
-							accept.setText("");
-							Document doc = accept.getDocument();
-							lname.setText(users.getSelectedValue());
-							if(!docs.containsKey(indexname))
-								docs.put(indexname, new StringBuffer());
-							doc.insertString(0, docs.get(indexname).toString(), attr1);
-						}
-						if (msg.containsKey(indexname) && msg.get(indexname) == true)
-							msg.put(indexname, false);
+							index = lIndex;
+						users.setSelectedIndex(index);
+						setIndex(index);
+						// if (index < 0)
+						// return;
+						// if (index != lIndex)
+						// {
+						// lIndex = index;
+						// indexname = users.getSelectedValue();
+						// if (indexname == null)
+						// return;
+						// Pattern p = Pattern.compile("\\w+");
+						// Matcher m = p.matcher(indexname);
+						// if (!m.find())
+						// return;
+						// indexname = m.group();
+						// // indexname = indexname.substring(0,
+						// // indexname.length() - 1);
+						// accept.setText("");
+						// Document doc = accept.getDocument();
+						// lname.setText(users.getSelectedValue());
+						// if (!docs.containsKey(indexname))
+						// {
+						// docs.put(indexname, new StringBuffer());
+						// }
+						// doc.insertString(0, docs.get(indexname).toString(),
+						// attr1);
+						// }
+						// if (msg.containsKey(indexname) && msg.get(indexname)
+						// == true)
+						// {
+						// msg.put(indexname, false);
+						// refresh();
+						// lname.setText(users.getSelectedValue());
+						// }
 					}
 				} catch (Exception ex)
 				{
@@ -267,6 +284,9 @@ public class loginPanel extends JPanel {
 					str1 = str1 + "        " + sendText + "\n";
 					doc.insertString(doc.getLength(), str1, attr1);
 					client.sendText(users.getSelectedIndex(), str1);
+					StringBuffer sb = docs.get(indexname);
+					String content = sb.toString();
+					docs.put(indexname, new StringBuffer(content + str1));
 					send.setText("");
 				} catch (Exception ex)
 				{
@@ -277,14 +297,24 @@ public class loginPanel extends JPanel {
 	}
 
 	public void accText(String id, String str) {
-		if (docs.containsKey(id))
-			docs.get(id).append(str);
-		else
+		try
 		{
-			docs.put(id, new StringBuffer(str));
+			if (docs.containsKey(id))
+				docs.get(id).append(str);
+			else
+			{
+				docs.put(id, new StringBuffer(str));
+			}
+
+			System.out.println("point::"+indexname+" "+id);
+			if (!indexname.equals(id))
+				msg.put(id, true);
+//			setIndex(lIndex);
+			refresh();
+		} catch (Exception ex)
+		{
+			ex.printStackTrace();
 		}
-		msg.put(id, true);
-		refresh();
 	}
 
 	public void accPic() {
@@ -302,7 +332,7 @@ public class loginPanel extends JPanel {
 				{
 					indexname = un;
 				}
-				if (s.contains(indexname))
+				if (s.substring(0, s.length() - 1).equals(indexname))
 					lIndex = dlm.getSize();
 				if (msg.containsKey(un) && msg.get(un) == true)
 					s = msgu + s;
@@ -310,15 +340,17 @@ public class loginPanel extends JPanel {
 
 				if (!docs.containsKey(un))
 				{
-					docs.put(un, new StringBuffer());
+					docs.put(un, new StringBuffer("\n"));
 				}
 			}
 		}
-		if (users != null)
-		{
-			users.setModel(dlm);
-			users.setSelectedIndex(lIndex);
-		}
+		users.setModel(dlm);
+		// users.setSelectedIndex(lIndex);
+		// indexname = users.getSelectedValue();
+		// if (indexname != null)
+		// indexname = indexname.substring(0, indexname.length() - 1);
+		// }
+
 	}
 
 	public void click() {
@@ -330,18 +362,57 @@ public class loginPanel extends JPanel {
 			// lgn.setAlwaysOnTop(true);
 		} else
 		{
-			users.setSelectedIndex(lIndex);
+			setIndex(lIndex);
+
+			// users.setSelectedIndex(lIndex);
+			// accept.setText("");
+			// Document doc = accept.getDocument();
+			// lname.setText(users.getSelectedValue());
+			// try
+			// {
+			// if (docs.containsKey(indexname))
+			// doc.insertString(0, docs.get(indexname).toString(), attr1);
+			// } catch (Exception ex)
+			// {
+			// ex.printStackTrace();
+			// }
+		}
+	}
+
+	private void setIndex(int index) {
+		try
+		{
+			if (lIndex != users.getSelectedIndex())
+			{
+				lIndex = index;
+				users.setSelectedIndex(index);
+				indexname = users.getSelectedValue();
+				System.out.println(indexname);
+				Pattern p = Pattern.compile("\\w+");
+				Matcher m = p.matcher(indexname);
+				// if (!m.find())
+				// return;
+				System.out.println(m.find());
+				indexname = m.group();
+				if (msg.containsKey(indexname) && msg.get(indexname) == true)
+				{
+					msg.put(indexname, false);
+				}
+				refresh();
+				index = lIndex;
+				users.setSelectedIndex(index);
+			}
 			accept.setText("");
 			Document doc = accept.getDocument();
 			lname.setText(users.getSelectedValue());
-			try
-			{
-				if (docs.containsKey(indexname))
-					doc.insertString(0, docs.get(indexname).toString(), attr1);
-			} catch (Exception ex)
-			{
-				ex.printStackTrace();
-			}
+			// if (!docs.containsKey(indexname))
+			// {
+			// docs.put(indexname, new StringBuffer());
+			// }
+			doc.insertString(0, docs.get(indexname).toString(), attr1);
+		} catch (Exception ex)
+		{
+			ex.printStackTrace();
 		}
 	}
 

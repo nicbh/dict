@@ -13,6 +13,7 @@ public class Server extends JFrame {
 	private dbc database = new dbc();
 	private Map<Integer, Integer> users = Collections.synchronizedMap(new HashMap<Integer, Integer>());
 	private HashMap<String, String> sendt = new HashMap<String, String>();
+	private HashMap<String, String> sendp = new HashMap<String, String>();
 
 	public static void main(String[] args) {
 		new Server();
@@ -88,6 +89,13 @@ public class Server extends JFrame {
 					likes = user.getLikes();
 					for (int i = 0; i < likes.length; i++)
 						output.writeInt(likes[i]);
+					int length = users.size();
+					output.writeInt(length);
+					for (Entry<Integer, Integer> entry : users.entrySet())
+					{
+						output.writeUTF(database.getName(entry.getKey()));
+						output.writeInt(entry.getValue());
+					}
 					while (true)
 					{
 						try
@@ -96,10 +104,12 @@ public class Server extends JFrame {
 							if (response == askcode)
 							{
 								String name = user.getName();
+								boolean send = false;
 								synchronized (sendt)
 								{
 									if (sendt.containsKey(name) && sendt.get(name) != null)
 									{
+										send = true;
 										String content = sendt.get(name);
 										String nm = content.substring(0, content.indexOf(' '));
 										output.writeInt(textcode);
@@ -107,17 +117,29 @@ public class Server extends JFrame {
 										output.writeUTF(content);
 										int success = input.readInt();
 										if (success == textcode)
+										{
 											sendt.put(name, null);
+											synchronized (text)
+											{
+												text.append(No + "sendtext success: " + name + "; " + content);
+											}
+										}
 									}
 								}
-								output.writeInt(askcode);
-								int length = users.size();
+								if (!send)
+									output.writeInt(askcode);
+								length = users.size();
 								output.writeInt(length);
 								for (Entry<Integer, Integer> entry : users.entrySet())
 								{
 									output.writeUTF(database.getName(entry.getKey()));
 									output.writeInt(entry.getValue());
 								}
+								// synchronized (text)
+								// {
+								// text.append(No + "online");
+								// }
+
 							} else if (response == likecode)
 							{
 								likes[0] = input.readInt();
@@ -136,6 +158,8 @@ public class Server extends JFrame {
 								String name, content;
 								name = input.readUTF();
 								content = input.readUTF();
+								if (sendt.containsKey(name) && sendt.get(name) != null)
+									content = sendt.get(name) + content;
 								synchronized (sendt)
 								{
 									sendt.put(name, content);
@@ -144,6 +168,38 @@ public class Server extends JFrame {
 								synchronized (text)
 								{
 									text.append(No + "sendtext: " + name + "; " + content);
+								}
+							} else if (response == piccode)
+							{
+								String name = input.readUTF();
+								int len = input.readInt();
+								String filename = name + len + new Date().getTime() % 50000 + ".jpg";
+								FileOutputStream fos = new FileOutputStream(new File(filename));
+								byte[] inputbyte = new byte[1024];
+								int lengthh = 1000;
+								if (len < lengthh)
+									lengthh = len;
+								while (len > 0)
+								{
+									input.read(inputbyte, 0, lengthh);
+									len -= lengthh;
+									fos.write(inputbyte, 0, lengthh);
+									fos.flush();
+									if (len < lengthh)
+										lengthh = len;
+								}
+								fos.close();
+								String content = filename;
+								if (sendp.containsKey(name) && sendp.get(name) != null)
+									content = sendp.get(name) + "|" + filename;
+								synchronized (sendp)
+								{
+									sendp.put(name, content);
+								}
+								output.writeInt(piccode);
+								synchronized (text)
+								{
+									text.append(No + "sendpic: " + name + "; " + filename);
 								}
 							}
 						} catch (IOException ex)
@@ -264,12 +320,12 @@ public class Server extends JFrame {
 
 		public int[] getLikes() {
 			int[] likes = database.sql_likes(id);
-//			if (likes == null)
-//			{
-//				int[] like = { 0, 0, 0 };
-//				database.set_likes(id, like);
-//				return like;
-//			}
+			// if (likes == null)
+			// {
+			// int[] like = { 0, 0, 0 };
+			// database.set_likes(id, like);
+			// return like;
+			// }
 			if (likes.length != 3)
 				return null;
 			else
