@@ -34,7 +34,7 @@ public class WordCard extends JFrame {
 	private BufferedImage image = null;
 	private Box box = null;
 	
-	WordCard(String word){
+	WordCard(String word,BufferedImage wordimage){
 		this.setSize(600,450);
 		this.setResizable(false);
 		this.setTitle("Dict");
@@ -50,7 +50,7 @@ public class WordCard extends JFrame {
 		}catch(IOException e){
 			e.printStackTrace();
 		}
-		
+		addWordImage(wordimage);
 		ImageIcon imageicon = new ImageIcon(image);
 		
 		//jp = new JPanel(new GridLayout(6,1,5,5));
@@ -172,6 +172,7 @@ public class WordCard extends JFrame {
 					e1.printStackTrace();
 					
 				}
+				addWordImage(wordimage);
 				ImageIcon imageIcon = new ImageIcon(image);
 			    jlb1.setIcon(imageIcon);
 			}
@@ -215,6 +216,14 @@ public class WordCard extends JFrame {
 		g.drawImage(image1, 0, 0, width, height, null);
 		g.dispose();
 		return  tag;
+	}
+	
+	public void addWordImage(BufferedImage image1){
+		if(image1 == null)
+			return;
+		Graphics g = image.getGraphics();
+		g.drawImage(image1, image.getWidth()/2 - image1.getWidth()/2, 290, null);
+		g.dispose();
 	}
 	
 	public void mergeImage(BufferedImage image1,BufferedImage image2){
