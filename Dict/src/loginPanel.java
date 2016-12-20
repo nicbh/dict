@@ -260,15 +260,39 @@ public class loginPanel extends JPanel {
 				{
 					File f = fc.getSelectedFile();
 					String fileName = f.getName();
+					String regex = ".+\\.(JPG|jpg|bmp|BMP|gif|GIF|WBMP|png|PNG|wbmp|jpeg|JPEG)";
+					if (!fileName.matches(regex))
+					{
+						JOptionPane.showMessageDialog(null, "不支持的图片格式", "错误", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
 					String filePath = fc.getSelectedFile().getAbsolutePath();
 					try
 					{
 						FileInputStream in = new FileInputStream(f);
-						
+						int size = in.available();
+						if (size > 1024 * 1024 * 50)
+						{
+							JOptionPane.showMessageDialog(null, "不支持的图片大小", "错误", JOptionPane.ERROR_MESSAGE);
+							in.close();
+							return;
+						}
+						String picxxx = fileName.substring(fileName.lastIndexOf('.'));
+						client.sendpic(indexname + "$" + picxxx, in);
+						Thread.sleep(100);
 
-					} catch (IOException a)
+						Date date = new Date();
+						SimpleDateFormat form = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+						Document doc = accept.getDocument();
+						String str1 = userName + " " + form.format(date) + "\n";
+						str1 = str1 + String.format("向%s发送了图片%s\n", indexname, fileName);
+						doc.insertString(doc.getLength(), str1, attr2);
+						StringBuffer sb = docs.get(indexname);
+						String content = sb.toString();
+						docs.put(indexname, new StringBuffer(content + str1));
+					} catch (Exception ex)
 					{
-						a.printStackTrace();
+						ex.printStackTrace();
 					}
 
 				}

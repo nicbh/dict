@@ -362,6 +362,16 @@ public class Dict extends JFrame {
 				content[2] = "Î´Ñ¡Ôñ¸´Ñ¡¿ò";
 				text[jinshan].setText(content[2]);
 			}
+			for (int i = 0; i < likeable.length; i++)
+			{
+				if (likeable[i])
+				{
+					text[i].setToolTipText("µã»÷×ó¼üµãÔÞ£¬ÓÒ¼üÉú³Éµ¥´Ê¿¨");
+				} else
+				{
+					text[i].setToolTipText("");
+				}
+			}
 		}
 	}
 

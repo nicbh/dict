@@ -1,8 +1,13 @@
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JOptionPane;
 
 //网络交互静态方法类
@@ -22,6 +27,7 @@ public class Client {
 	private final String isoffline = "\u25CB";
 	private loginPanel lPanel;
 	private String username;
+	private boolean picsending = false;
 
 	Client(loginPanel lpn) {
 		lPanel = lpn;
@@ -80,29 +86,67 @@ public class Client {
 					boolean refresh = false;
 					synchronized (output)
 					{
-						output.writeInt(askcode);
-						int res = input.readInt();
-						if (res == textcode)
+						if (!picsending)
 						{
-							String name, content;
-							name = input.readUTF();
-							content = input.readUTF();
-							lPanel.accText(name, content);
-							output.writeInt(textcode);
-							res = askcode;
-							System.out.println("receive " + name + " " + content);
-						}
-						if (res == askcode)
-						{
-							length = input.readInt();
-							for (int i = 0; i < length; i++)
+							output.writeInt(askcode);
+							int res = input.readInt();
+							if (res == textcode)
 							{
-								String name = input.readUTF();
-								int active = input.readInt();
-								if (userstate.get(name) == null || userstate.get(name) != active)
+								String name, content;
+								name = input.readUTF();
+								content = input.readUTF();
+								lPanel.accText(name, content);
+								output.writeInt(textcode);
+								res = input.readInt();
+								// System.out.println("receive " + name + " " +
+								// content);
+							}
+							if (res == piccode)
+							{
+								int number = input.readInt();
+								SimpleDateFormat form = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+								for (int i = 0; i < number; i++)
 								{
-									userstate.put(name, active);
-									refresh = true;
+									Date date = new Date();
+									String name = input.readUTF();
+									int inddd = name.lastIndexOf('$');
+									String picxxx = name.substring(inddd + 1);
+									name = name.substring(0, inddd);
+									int len = input.readInt();
+									String filename = name + "$" + len + "$" + date.getTime() % 100000 + picxxx;
+									////////////
+									FileOutputStream fos = new FileOutputStream(new File(filename));
+									byte[] inputbyte = new byte[1024];
+									int lengthh = 1024;
+									if (len < lengthh)
+										lengthh = len;
+									while (len > 0)
+									{
+										input.read(inputbyte, 0, lengthh);
+										len -= lengthh;
+										fos.write(inputbyte, 0, lengthh);
+										fos.flush();
+										if (len < lengthh)
+											lengthh = len;
+									}
+									fos.close();
+									String str1 = name + " " + form.format(date) + "\n";
+									str1 = str1 + "收到来自" + name + "的图片，已保存在目录中，文件名为" + filename + "\n";
+									lPanel.accText(name, str1);
+								}
+							}
+							if (res == askcode)
+							{
+								length = input.readInt();
+								for (int i = 0; i < length; i++)
+								{
+									String name = input.readUTF();
+									int active = input.readInt();
+									if (userstate.get(name) == null || userstate.get(name) != active)
+									{
+										userstate.put(name, active);
+										refresh = true;
+									}
 								}
 							}
 						}
@@ -266,6 +310,66 @@ public class Client {
 		{
 			System.err.println("client.sendText wrong");
 			System.err.println(ex);
+		}
+	}
+
+	public void sendpic(String name, FileInputStream fin) {
+		int type = piccode;
+		try
+		{
+			new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+
+					int success = piccode + 1;
+					try
+					{
+						// while (success != 97653)
+						// {
+						picsending = true;
+						synchronized (output)
+						{
+							output.writeInt(type);
+							output.writeUTF(name);
+							int length = fin.available();
+							output.writeInt(length);
+
+							byte[] outputbyte = new byte[1024];
+							int len = 1024;
+							if (length < len)
+								len = length;
+							while (length > 0)
+							{
+								fin.read(outputbyte, 0, len);
+								output.write(outputbyte, 0, len);
+								output.flush();
+								length -= len;
+								if (length < len)
+									len = length;
+							}
+							fin.close();
+							success = input.readInt();
+						}
+						picsending = false;
+						if (success != piccode)
+							JOptionPane.showMessageDialog(null, "网络错误，发送图片失败", "错误", JOptionPane.ERROR_MESSAGE);
+						System.out.println(success);
+						// Thread.sleep(2000);
+						// }
+					} catch (Exception ex)
+					{
+						System.err.println("client.sendpic wrong");
+						ex.printStackTrace();
+					}
+				}
+			}).start();
+
+		} catch (Exception ex)
+		{
+			ex.printStackTrace();
+			System.err.println("client.sendText wrong");
 		}
 	}
 

@@ -104,12 +104,10 @@ public class Server extends JFrame {
 							if (response == askcode)
 							{
 								String name = user.getName();
-								boolean send = false;
 								synchronized (sendt)
 								{
 									if (sendt.containsKey(name) && sendt.get(name) != null)
 									{
-										send = true;
 										String content = sendt.get(name);
 										String nm = content.substring(0, content.indexOf(' '));
 										output.writeInt(textcode);
@@ -126,8 +124,70 @@ public class Server extends JFrame {
 										}
 									}
 								}
-								if (!send)
-									output.writeInt(askcode);
+								synchronized (sendp)
+								{
+									if (sendp.containsKey(name) && sendp.get(name) != null)
+									{
+										String files = sendp.get(name);
+										String[] filename = files.split("\\|");
+										output.writeInt(piccode);
+										output.writeInt(filename.length);
+										sendp.put(name, null);
+
+										for (int i = 0; i < filename.length; i++)
+										{
+											String fname = filename[i];
+											String picxxx = fname.substring(fname.lastIndexOf('.'));
+											String sendname = fname.substring(0, fname.indexOf('$'));
+											output.writeUTF(sendname + "$" + picxxx);
+											String llen = fname.substring(0, fname.lastIndexOf('$'));
+											llen = llen.substring(llen.lastIndexOf('$') + 1);
+											try
+											{
+												FileInputStream in = new FileInputStream(new File(fname));
+												int flength = in.available();
+												if (flength != Integer.parseInt(llen)){
+													in.close();
+													throw new IOException();
+												}
+												output.writeInt(flength);
+
+												byte[] outputbyte = new byte[1024];
+												int flen = 1024;
+												if (flength < flen)
+													flen = flength;
+												while (flength > 0)
+												{
+													in.read(outputbyte, 0, flen);
+													output.write(outputbyte, 0, flen);
+													output.flush();
+													flength -= flen;
+													if (flength < flen)
+														flen = flength;
+												}
+												in.close();
+												int success = piccode + 1;
+												success = input.readInt();
+												if (success != piccode)
+												{
+													synchronized (text)
+													{
+														text.append(No + "send failed: " + fname);
+													}
+												}
+											} catch (IOException ex)
+											{
+												ex.printStackTrace();
+												synchronized (text)
+												{
+													text.append(No + "file error: " + fname);
+												}
+												output.writeInt(0);
+											}
+										}
+									}
+								}
+								output.writeInt(askcode);
 								length = users.size();
 								output.writeInt(length);
 								for (Entry<Integer, Integer> entry : users.entrySet())
@@ -172,11 +232,15 @@ public class Server extends JFrame {
 							} else if (response == piccode)
 							{
 								String name = input.readUTF();
+								int inddd = name.lastIndexOf('$');
+								String picxxx = name.substring(inddd + 1);
+								name = name.substring(0, inddd);
 								int len = input.readInt();
-								String filename = name + len + new Date().getTime() % 50000 + ".jpg";
+								String filename = user.getName() + "$" + name + "$" + len + "$"
+										+ new Date().getTime() % 100000 + picxxx;
 								FileOutputStream fos = new FileOutputStream(new File(filename));
 								byte[] inputbyte = new byte[1024];
-								int lengthh = 1000;
+								int lengthh = 1024;
 								if (len < lengthh)
 									lengthh = len;
 								while (len > 0)
@@ -199,10 +263,10 @@ public class Server extends JFrame {
 								output.writeInt(piccode);
 								synchronized (text)
 								{
-									text.append(No + "sendpic: " + name + "; " + filename);
+									text.append(No + "sendpic: " + name + "; " + filename + "\n");
 								}
 							}
-						} catch (IOException ex)
+						} catch (SocketException ex)
 						{
 							// ex.printStackTrace();
 							break;
@@ -215,6 +279,7 @@ public class Server extends JFrame {
 			{
 				ex.printStackTrace();
 			}
+			users.put(user.getId(), 0);
 			synchronized (text)
 			{
 				text.append(No + "closed\n");
