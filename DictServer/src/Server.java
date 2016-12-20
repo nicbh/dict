@@ -8,11 +8,16 @@ import java.awt.*;
 import javax.swing.*;
 import java.net.*;
 
+// server程序主类
 public class Server extends JFrame {
+	// 服务器监控
 	private JTextArea text = new JTextArea();
 	private dbc database = new dbc();
+	// 用户在线情况表
 	private Map<Integer, Integer> users = Collections.synchronizedMap(new HashMap<Integer, Integer>());
+	// 消息缓存列表
 	private HashMap<String, String> sendt = new HashMap<String, String>();
+	// 图片缓存列表
 	private HashMap<String, String> sendp = new HashMap<String, String>();
 
 	public static void main(String[] args) {
@@ -21,10 +26,7 @@ public class Server extends JFrame {
 
 	Server() {
 		super();
-		// System.out.println(database.sql_signup("", ""));
-		// JPanel panel = new JPanel();
-		// panel.add(text);
-		add(new JScrollPane(text), BorderLayout.CENTER);// panel);
+		add(new JScrollPane(text), BorderLayout.CENTER);
 		setSize(400, 300);
 		setResizable(false);
 		setTitle("Server");
@@ -37,9 +39,7 @@ public class Server extends JFrame {
 			users.put(id, 0);
 			System.out.println(database.getName(id) + " " + id);
 		}
-		// System.out.println(database.sql_signin("admin", "admin"));
-		// System.out.println(database.sql_signin("admn", "admm"));
-		// System.out.println(database.sql_signin("adn", "admm"));
+		// 如果有用户登录或者注册，新建一个线程处理用户交互
 		try
 		{
 			ServerSocket serverSocket = new ServerSocket(7795);
@@ -63,6 +63,7 @@ public class Server extends JFrame {
 		}
 	}
 
+	// 用户交互处理线程内部类
 	private class HandleAClient implements Runnable {
 		private Socket socket;
 		private String No;
@@ -86,6 +87,7 @@ public class Server extends JFrame {
 				if (start())
 				{
 					users.put(user.getId(), 1);
+					// 发送点赞列表
 					likes = user.getLikes();
 					for (int i = 0; i < likes.length; i++)
 						output.writeInt(likes[i]);
@@ -104,6 +106,7 @@ public class Server extends JFrame {
 							if (response == askcode)
 							{
 								String name = user.getName();
+								// 发生消息
 								synchronized (sendt)
 								{
 									if (sendt.containsKey(name) && sendt.get(name) != null)
@@ -119,11 +122,12 @@ public class Server extends JFrame {
 											sendt.put(name, null);
 											synchronized (text)
 											{
-												text.append(No + "sendtext success: " + name + "; " + content);
+												text.append(No + "sendtext success: " + name + "; " + content + "\n");
 											}
 										}
 									}
 								}
+								// 发送图片
 								synchronized (sendp)
 								{
 									if (sendp.containsKey(name) && sendp.get(name) != null)
@@ -146,7 +150,8 @@ public class Server extends JFrame {
 											{
 												FileInputStream in = new FileInputStream(new File(fname));
 												int flength = in.available();
-												if (flength != Integer.parseInt(llen)){
+												if (flength != Integer.parseInt(llen))
+												{
 													in.close();
 													throw new IOException();
 												}
@@ -172,21 +177,28 @@ public class Server extends JFrame {
 												{
 													synchronized (text)
 													{
-														text.append(No + "send failed: " + fname);
+														text.append(No + "send failed: " + fname + "\n");
+													}
+												} else
+												{
+													synchronized (text)
+													{
+														text.append(No + "send success: " + fname + "\n");
 													}
 												}
 											} catch (IOException ex)
 											{
-												ex.printStackTrace();
+												System.err.println(ex);
 												synchronized (text)
 												{
-													text.append(No + "file error: " + fname);
+													text.append(No + "file error: " + fname + "\n");
 												}
 												output.writeInt(0);
 											}
 										}
 									}
 								}
+								// 发送点赞列表
 								output.writeInt(askcode);
 								length = users.size();
 								output.writeInt(length);
@@ -195,13 +207,9 @@ public class Server extends JFrame {
 									output.writeUTF(database.getName(entry.getKey()));
 									output.writeInt(entry.getValue());
 								}
-								// synchronized (text)
-								// {
-								// text.append(No + "online");
-								// }
 
 							} else if (response == likecode)
-							{
+							{// 点赞处理
 								likes[0] = input.readInt();
 								likes[1] = input.readInt();
 								likes[2] = input.readInt();
@@ -214,7 +222,7 @@ public class Server extends JFrame {
 								else
 									output.writeInt(likecode + 1);
 							} else if (response == textcode)
-							{
+							{//接受消息
 								String name, content;
 								name = input.readUTF();
 								content = input.readUTF();
@@ -230,7 +238,7 @@ public class Server extends JFrame {
 									text.append(No + "sendtext: " + name + "; " + content);
 								}
 							} else if (response == piccode)
-							{
+							{//接受图片
 								String name = input.readUTF();
 								int inddd = name.lastIndexOf('$');
 								String picxxx = name.substring(inddd + 1);
@@ -268,7 +276,7 @@ public class Server extends JFrame {
 							}
 						} catch (SocketException ex)
 						{
-							// ex.printStackTrace();
+							// System.err.println(ex);
 							break;
 						}
 					}
@@ -277,7 +285,7 @@ public class Server extends JFrame {
 				socket.close();
 			} catch (IOException ex)
 			{
-				ex.printStackTrace();
+				System.err.println(ex);
 			}
 			users.put(user.getId(), 0);
 			synchronized (text)
@@ -336,12 +344,13 @@ public class Server extends JFrame {
 					return false;
 			} catch (IOException ex)
 			{
-				ex.printStackTrace();
+				System.err.println(ex);
 				return false;
 			}
 		}
 	}
 
+//	用户信息内部类
 	public class User {
 		private int id;
 		private String username;
@@ -352,6 +361,7 @@ public class Server extends JFrame {
 			this.password = password;
 		}
 
+//		注册
 		public boolean confirmName() {
 			if (database.checkname(username))
 				return false;
@@ -362,6 +372,7 @@ public class Server extends JFrame {
 			}
 		}
 
+//		登陆
 		public boolean confirm() {
 			id = database.sql_signin(username, password);
 			if (id == -1)
@@ -383,20 +394,16 @@ public class Server extends JFrame {
 			return rt;
 		}
 
+//		获取点赞列表
 		public int[] getLikes() {
 			int[] likes = database.sql_likes(id);
-			// if (likes == null)
-			// {
-			// int[] like = { 0, 0, 0 };
-			// database.set_likes(id, like);
-			// return like;
-			// }
 			if (likes.length != 3)
 				return null;
 			else
 				return likes;
 		}
 
+//		点赞
 		public boolean setLikes(int[] likes) {
 			return database.set_likes(id, likes);
 		}

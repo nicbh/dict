@@ -1,14 +1,10 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.*;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.*;
@@ -67,14 +63,15 @@ public class loginPanel extends JPanel {
 		box21.add(signup);
 		Box box22 = Box.createVerticalBox();
 
-		box22.add(box20);// , BorderLayout.CENTER);
-		box22.add(box21);// , BorderLayout.SOUTH);
+		box22.add(box20);
+		box22.add(box21);
 		label.setFont(font);
 		Box box23 = Box.createVerticalBox();
 		box23.add(box22);
 		box23.add(label);
 		lgn.add(box23);
 
+		// 登陆消息处理
 		signin.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -102,6 +99,7 @@ public class loginPanel extends JPanel {
 				}
 			}
 		});
+		// 注册消息处理
 		signup.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -149,7 +147,7 @@ public class loginPanel extends JPanel {
 		b1.add(sendtext);
 		b0.add(new JScrollPane(send));
 		b0.add(b1);
-		// accept.setLineWrap(true);
+//		accept.setLineWrap(true);
 		send.setFont(f0);
 		send.setLineWrap(true);
 		accept.setOpaque(false);
@@ -185,6 +183,7 @@ public class loginPanel extends JPanel {
 		hspane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 		add(hspane);
 
+		// 列表切换重载
 		users.addListSelectionListener(new ListSelectionListener() {
 
 			@Override
@@ -207,38 +206,6 @@ public class loginPanel extends JPanel {
 							index = lIndex;
 						users.setSelectedIndex(index);
 						setIndex(index);
-						// if (index < 0)
-						// return;
-						// if (index != lIndex)
-						// {
-						// lIndex = index;
-						// indexname = users.getSelectedValue();
-						// if (indexname == null)
-						// return;
-						// Pattern p = Pattern.compile("\\w+");
-						// Matcher m = p.matcher(indexname);
-						// if (!m.find())
-						// return;
-						// indexname = m.group();
-						// // indexname = indexname.substring(0,
-						// // indexname.length() - 1);
-						// accept.setText("");
-						// Document doc = accept.getDocument();
-						// lname.setText(users.getSelectedValue());
-						// if (!docs.containsKey(indexname))
-						// {
-						// docs.put(indexname, new StringBuffer());
-						// }
-						// doc.insertString(0, docs.get(indexname).toString(),
-						// attr1);
-						// }
-						// if (msg.containsKey(indexname) && msg.get(indexname)
-						// == true)
-						// {
-						// msg.put(indexname, false);
-						// refresh();
-						// lname.setText(users.getSelectedValue());
-						// }
 					}
 				} catch (Exception ex)
 				{
@@ -252,6 +219,7 @@ public class loginPanel extends JPanel {
 		StyleConstants.setFontSize(attr2, 17);
 		StyleConstants.setFontFamily(attr2, "timesroman");
 		StyleConstants.setItalic(attr2, false);
+		// 发送图片
 		sendpic.addActionListener(new ActionListener() {
 
 			@Override
@@ -302,6 +270,7 @@ public class loginPanel extends JPanel {
 			}
 		});
 
+		// 发送文字
 		sendtext.addActionListener(new ActionListener() {
 
 			@Override
@@ -334,6 +303,7 @@ public class loginPanel extends JPanel {
 		});
 	}
 
+	// 接收文字
 	public void accText(String id, String str) {
 		try
 		{
@@ -347,7 +317,6 @@ public class loginPanel extends JPanel {
 			System.out.println("point::" + indexname + " " + id);
 			if (!indexname.equals(id))
 				msg.put(id, true);
-			// setIndex(lIndex);
 			refresh();
 		} catch (Exception ex)
 		{
@@ -355,10 +324,12 @@ public class loginPanel extends JPanel {
 		}
 	}
 
-	public void accPic() {
+	// 接收图片转为接受文字处理
+	// public void accPic() {
+	//
+	// }
 
-	}
-
+	// 刷新列表
 	public void refresh() {
 		DefaultListModel<String> dlm = new DefaultListModel<String>();
 		synchronized (client.userlist)
@@ -383,40 +354,22 @@ public class loginPanel extends JPanel {
 			}
 		}
 		users.setModel(dlm);
-		// users.setSelectedIndex(lIndex);
-		// indexname = users.getSelectedValue();
-		// if (indexname != null)
-		// indexname = indexname.substring(0, indexname.length() - 1);
-		// }
-
 	}
 
+	// panel显示
 	public void click() {
 		if (!login)
 		{
 			username.setText("");
 			password.setText("");
 			lgn.setVisible(true);
-			// lgn.setAlwaysOnTop(true);
 		} else
 		{
 			setIndex(lIndex);
-
-			// users.setSelectedIndex(lIndex);
-			// accept.setText("");
-			// Document doc = accept.getDocument();
-			// lname.setText(users.getSelectedValue());
-			// try
-			// {
-			// if (docs.containsKey(indexname))
-			// doc.insertString(0, docs.get(indexname).toString(), attr1);
-			// } catch (Exception ex)
-			// {
-			// ex.printStackTrace();
-			// }
 		}
 	}
 
+	// 切换重载
 	private void setIndex(int index) {
 		try
 		{
@@ -428,8 +381,6 @@ public class loginPanel extends JPanel {
 				System.out.println(indexname);
 				Pattern p = Pattern.compile("\\w+");
 				Matcher m = p.matcher(indexname);
-				// if (!m.find())
-				// return;
 				System.out.println(m.find());
 				indexname = m.group();
 				if (msg.containsKey(indexname) && msg.get(indexname) == true)
@@ -454,7 +405,6 @@ public class loginPanel extends JPanel {
 		}
 	}
 
-	
 	/*
 	 * logindlg 对话框类，当未登录是点击“发现”会弹出登录对话框
 	 */

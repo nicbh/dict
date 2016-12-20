@@ -5,11 +5,8 @@
 	<classpathentry kind="lib" path="lib/commons-lang3-3.5-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.5-sources.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.5.jar" sourcepath="lib/commons-lang3-3.5-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/idea/Desktop/大三上/java/dict/Dict/lib/html2image-0.9.jar"/>
-	<classpathentry kind="lib" path="C:/Users/idea/Desktop/大三上/java/dict/Dict/lib/commons-lang3-3.5.jar"/>
-	<classpathentry kind="lib" path="C:/Users/idea/Desktop/大三上/java/dict/Dict/lib/commons-lang3-3.5-javadoc.jar"/>
-	<classpathentry kind="lib" path="C:/Users/idea/Desktop/大三上/java/dict/Dict/lib/commons-lang3-3.5-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/idea/Desktop/大三上/java/dict/Dict/lib/html2image-0.9-javadoc.jar"/>
-	<classpathentry kind="lib" path="C:/Users/idea/Desktop/大三上/java/dict/Dict/lib/html2image-0.9-sources.jar"/>
+	<classpathentry kind="lib" path="lib/html2image-0.9-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/html2image-0.9-sources.jar"/>
+	<classpathentry kind="lib" path="lib/html2image-0.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

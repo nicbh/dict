@@ -1,12 +1,15 @@
 import java.sql.*;
 import java.util.*;
 
+//数据库处理类
 public class dbc {
 	private PreparedStatement ps0;
 	private PreparedStatement ps1;
 	private PreparedStatement ps2;
 	private PreparedStatement ps3;
+	private PreparedStatement ps4;
 	private Statement stmt;
+	//在线用户列表
 	private Map<Integer, String> id_name = Collections.synchronizedMap(new HashMap<Integer, String>());
 	private final String dbconn = "jdbc:mysql://localhost/dict?useSSL=true";
 	private final String dbun = "root";
@@ -15,6 +18,7 @@ public class dbc {
 	String queryString1 = "insert into login " + "values (?,?,?)";
 	String queryString2 = "select * " + "from info " + "where id=?";
 	String queryString3 = "update info " + "set bing=?,youdao=?,jinshan=? " + "where id=?";
+	String queryString4 = "insert into info values (?,?,?,?)";
 
 	dbc() {
 		try
@@ -23,10 +27,6 @@ public class dbc {
 			System.out.println("Driver loaded");
 			Connection connection = DriverManager.getConnection(dbconn, dbun, dbpw);
 			System.out.println("Database connected");
-			//ps0 = connection.prepareStatement(queryString0);
-//			ps1 = connection.prepareStatement(queryString1);
-//			ps2 = connection.prepareStatement(queryString2);
-//			ps3 = connection.prepareStatement(queryString3);
 			stmt = connection.createStatement();
 
 			String queryString = "select id,username from login";
@@ -38,7 +38,7 @@ public class dbc {
 			rset.close();
 		} catch (Exception ex)
 		{
-			ex.printStackTrace();
+			System.err.println(ex);
 		}
 	}
 
@@ -46,6 +46,7 @@ public class dbc {
 		return id_name.get(id);
 	}
 
+//	获取id列表
 	public int[] sql_id() {
 		synchronized (id_name)
 		{
@@ -59,10 +60,12 @@ public class dbc {
 		}
 	}
 
+//	检查用户名是否合法
 	public boolean checkname(String username) {
 		return id_name.containsValue(username);
 	}
 
+//	登陆检查
 	public int sql_signin(String username, String password) {
 		try
 		{
@@ -78,11 +81,12 @@ public class dbc {
 			return -1;
 		} catch (SQLException ex)
 		{
-			ex.printStackTrace();
+			System.err.println(ex);
 			return -1;
 		}
 	}
 
+//	注册
 	public int sql_signup(String username, String password) {
 		try
 		{
@@ -95,8 +99,6 @@ public class dbc {
 			ps1.executeUpdate();
 			int[] likes = { 0, 0, 0 };
 
-			String queryString4 = "insert into info values (?,?,?,?)";
-			PreparedStatement ps4;
 			ps4 = connection.prepareStatement(queryString4);
 			ps4.setInt(1, id);
 			ps4.setInt(2, likes[0]);
@@ -107,11 +109,12 @@ public class dbc {
 			return id;
 		} catch (SQLException ex)
 		{
-			ex.printStackTrace();
+			System.err.println(ex);
 			return -1;
 		}
 	}
 
+//	点赞列表
 	public int[] sql_likes(int id) {
 		try
 		{
@@ -130,11 +133,12 @@ public class dbc {
 			return null;
 		} catch (SQLException ex)
 		{
-			ex.printStackTrace();
+			System.err.println(ex);
 			return null;
 		}
 	}
 
+//	点赞
 	public boolean set_likes(int id, int[] likes) {
 		if (likes.length != 3)
 			return false;
@@ -150,7 +154,7 @@ public class dbc {
 			return true;
 		} catch (SQLException ex)
 		{
-			ex.printStackTrace();
+			System.err.println(ex);
 			return false;
 		}
 	}
