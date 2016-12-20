@@ -7,6 +7,10 @@ import org.apache.commons.lang3.*;
 import javax.script.*;
 import javax.swing.*;
 
+/*
+ * 翻译对话框，定义了翻译选项中的界面
+ * 以及相关的翻译功能
+ */
 public class transPanel extends JPanel {
 	private JTextArea text = new JTextArea();
 	private JTextArea trans = new JTextArea();
@@ -59,6 +63,7 @@ public class transPanel extends JPanel {
 
 		this.add(box);
 
+		//对组合框设置监听事件
 		jcb.addItemListener(new ItemListener() {
 
 			@Override
@@ -67,6 +72,8 @@ public class transPanel extends JPanel {
 				type = jcb.getSelectedIndex();
 			}
 		});
+		
+		//翻译的按键监听事件
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -183,6 +190,9 @@ public class transPanel extends JPanel {
 		});
 	}
 
+	/*
+	 * 
+	 */
 	private String tk(String val) throws Exception {
 		String script = "function tk(a) {"
 				+ "var TKK = ((function() {var a = 561666268;var b = 1526272306;return 406398 + '.' + (a + b); })());\n"

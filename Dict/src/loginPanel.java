@@ -14,7 +14,10 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
-// 第三个面板的面板类
+/* 第三个面板的面板类
+ * 在这个类中定义了登录注册对话框
+ * 
+ */
 public class loginPanel extends JPanel {
 	private JTextField username = new JTextField(15);
 	private JPasswordField password = new JPasswordField(15);
@@ -451,6 +454,10 @@ public class loginPanel extends JPanel {
 		}
 	}
 
+	
+	/*
+	 * logindlg 对话框类，当未登录是点击“发现”会弹出登录对话框
+	 */
 	private class logindlg extends JFrame {
 		logindlg() {
 			setSize(300, 150);

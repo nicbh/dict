@@ -274,7 +274,7 @@ public class Dict extends JFrame {
 								+ "´Êµä</strong></h2>" + content[index]);
 						image = ig.getBufferedImage();
 						// "<h2><strong>" + "apple" + "<></h2>" + "<p>ÓÐµÀ</p>"
-
+						//System.out.println("AAAAAAAAAAAAAAAAAAAAA" + index);
 					}
 					new WordCard(dic.getText().trim(), image);
 				}
