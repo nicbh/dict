@@ -8,6 +8,9 @@ import java.awt.*;
 import javax.swing.*;
 import java.net.*;
 
+/*
+ * 服务器类，继承了JFrame
+ */
 public class Server extends JFrame {
 	private JTextArea text = new JTextArea();
 	private dbc database = new dbc();
@@ -15,10 +18,16 @@ public class Server extends JFrame {
 	private HashMap<String, String> sendt = new HashMap<String, String>();
 	private HashMap<String, String> sendp = new HashMap<String, String>();
 
+	/*
+	 * 服务器程序运行接口
+	 */
 	public static void main(String[] args) {
 		new Server();
 	}
 
+	/*
+	 * 服务器类的初始化信息，并且一直结束来自客户端的请求
+	 */
 	Server() {
 		super();
 		// System.out.println(database.sql_signup("", ""));
@@ -63,6 +72,10 @@ public class Server extends JFrame {
 		}
 	}
 
+	/*
+	 * 内部类：主要是当有个客户端与服务器建立连接时，服务器新建一个线程来处理客户端的请求
+	 * 里面处理了来自客户端的各种请求，比如登录，注册
+	 */
 	private class HandleAClient implements Runnable {
 		private Socket socket;
 		private String No;
@@ -286,6 +299,9 @@ public class Server extends JFrame {
 			}
 		}
 
+		/*
+		 * 
+		 */
 		private boolean start() {
 			try
 			{

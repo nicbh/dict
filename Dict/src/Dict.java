@@ -10,6 +10,11 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.net.*;
 
+
+/*
+ * 主框架界面，定义了系统的整体框架以及各组件的布局，另外实现了对查询的基本操作
+ * 
+ */
 public class Dict extends JFrame {
 	private Dict dict;
 	private JTabbedPane pane = new JTabbedPane(JTabbedPane.TOP);
@@ -159,6 +164,11 @@ public class Dict extends JFrame {
 				getDict();
 			}
 		});
+		
+		/*
+		 * 给输入框设置监听器，当按下“Enter”时反应
+		 */
+		
 		dic.addActionListener(new ActionListener() {
 
 			@Override
@@ -167,6 +177,10 @@ public class Dict extends JFrame {
 				getDict();
 			}
 		});
+		
+		/*
+		 * 设置CheckBox
+		 */
 
 		bing.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -174,12 +188,20 @@ public class Dict extends JFrame {
 				likeable[0] = isbing;
 			}
 		});
+		
+		/*
+		 * 设置CheckBox
+		 */
 		youdao.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				isyoudao = !isyoudao;
 				likeable[1] = isyoudao;
 			}
 		});
+		
+		/*
+		 * 设置CheckBox
+		 */
 		jinshan.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				isjinshan = !isjinshan;
@@ -191,14 +213,24 @@ public class Dict extends JFrame {
 		text[2].addMouseListener(new mouse(2));
 	}
 
+	/*
+	 * mouse类主要是对三个EditorPane相应按键消息
+	 */
 	private class mouse extends MouseAdapter {
 		private int index;
 
+		/*mouse 构造函数
+		 * param i: 用来标识具体的EditorPane
+		 */
 		mouse(int i) {
 			index = i;
 		}
 
 		@Override
+		/*对接收到的鼠标信息进行统一处理
+		 * (non-Javadoc)
+		 * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
+		 */
 		public void mouseClicked(MouseEvent e) {
 			// TODO Auto-generated method stub
 			int type = e.getButton();// 得到按下的鼠标键
@@ -282,6 +314,9 @@ public class Dict extends JFrame {
 		}
 	}
 
+	/*
+	 * 通过获取输入框中的内容，以及根据CheckBox忠的选项，进行网页爬取，将爬取内容整理之后，显示在EditorPane忠
+	 */
 	void getDict() {
 		String str = dic.getText().trim();
 		if (str.length() == 0 || str.matches("\\W|\\d|_"))
@@ -375,6 +410,10 @@ public class Dict extends JFrame {
 		}
 	}
 
+	/*
+	 * 根据点赞数对三个EditorPane进行排序
+	 * @return 返回是否以及重新排序了
+	 */
 	public boolean putOrder() {
 		int[] likess = likes.clone();
 		int[] orders = { 0, 1, 2 };
@@ -398,10 +437,16 @@ public class Dict extends JFrame {
 		return swap;
 	}
 
+	/*
+	 * 初始化Dict
+	 */
 	public void setWindow(Dict dic) {
 		dict = dic;
 	}
 
+	/*
+	 * 程序入口main，定义了主框架
+	 */
 	public static void main(String[] args) {
 		Dict frame = new Dict();
 		frame.setWindow(frame);

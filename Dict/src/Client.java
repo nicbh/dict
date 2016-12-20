@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 //网络交互静态方法类
 public class Client {
 	private static final int port = 7795;
-	private static final String host = "localhost";
+	private static final String host = "192.168.1.100";
 	private final int askcode = 12368;
 	private final int textcode = 97653;
 	private final int piccode = 86432;

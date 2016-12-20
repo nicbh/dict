@@ -3,12 +3,24 @@ import java.net.*;
 import java.util.regex.*;
 import javax.swing.*;
 
+
+/*
+ * 继承了SwingWoker<String,Object>
+ * 由于网页的爬取需要时间，所以新建一个线程来处理
+ */
 public class getPage extends SwingWorker<String, Object> {
 	private String Url;
 	private int index;
 	private JEditorPane rst;
 	private String[] ctt;
 
+	/*
+	 * 给getPage类中的变量赋初值
+	 * @param strURL 网页爬取的地址
+	 * @param i 用来标识三个JEditorPane
+	 * @param result 用来接收HTML文本信息
+	 * @param content 存储HTML文本信息
+	 */
 	getPage(String strUrl, int i, JEditorPane result, String[] content) {
 		Url = strUrl;
 		index = i;
@@ -16,6 +28,10 @@ public class getPage extends SwingWorker<String, Object> {
 		ctt = content;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.swing.SwingWorker#done()
+	 */
 	protected void done() {
 		try
 		{
@@ -29,12 +45,22 @@ public class getPage extends SwingWorker<String, Object> {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.swing.SwingWorker#doInBackground()
+	 */
 	protected String doInBackground() {
 		String content = getPageContent(Url, index);
 		System.out.println(index + " gets content");
 		return content;
 	}
 
+	/*
+	 * 获取网页信息，其中用i来标识“必应，有道，金山”中的一个
+	 * @param strURL ： 网页地址
+	 * @param i  i来标识“必应，有道，金山”中的一个
+	 * @return 返回抓取后整理的内容
+	 */
 	public String getPageContent(String strUrl, int i) {
 		try
 		{
