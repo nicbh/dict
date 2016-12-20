@@ -87,9 +87,6 @@ public class transPanel extends JPanel {
 
 						try
 						{
-							// URL url = new URL(
-							// "http://translate.google.cn/translate_a/single?client=t&sl=en&tl=zh-CN&hl=zh-CN&dt=bd&dt=ex&dt=ld&dt=md&dt=qc&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=sw&ie=UTF-8&oe=UTF-8&oc=2&otf=1&srcrom=1&ssel=0&tsel=0&q="
-							// + "please");
 							String srs = null, des = null;
 							switch (type) {
 							case 0:
@@ -191,7 +188,7 @@ public class transPanel extends JPanel {
 	}
 
 	/*
-	 * 
+	 * ¥¶¿Ìgoogleº”√‹¬Î
 	 */
 	private String tk(String val) throws Exception {
 		String script = "function tk(a) {"

@@ -1,13 +1,10 @@
-import java.awt.image.BufferedImage;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JOptionPane;
 
 //网络交互静态方法类
@@ -41,10 +38,11 @@ public class Client {
 			output = new DataOutputStream(socket.getOutputStream());
 		} catch (IOException ex)
 		{
-			// ex.printStackTrace();
+			// System.err.println(ex);
 		}
 	}
 
+//	与服务器保持连接
 	public class clientConnect implements Runnable {
 		public void run() {
 			try
@@ -90,6 +88,7 @@ public class Client {
 						{
 							output.writeInt(askcode);
 							int res = input.readInt();
+//							接收消息
 							if (res == textcode)
 							{
 								String name, content;
@@ -98,9 +97,8 @@ public class Client {
 								lPanel.accText(name, content);
 								output.writeInt(textcode);
 								res = input.readInt();
-								// System.out.println("receive " + name + " " +
-								// content);
 							}
+//							接受图片
 							if (res == piccode)
 							{
 								int number = input.readInt();
@@ -114,7 +112,7 @@ public class Client {
 									name = name.substring(0, inddd);
 									int len = input.readInt();
 									String filename = name + "$" + len + "$" + date.getTime() % 100000 + picxxx;
-									////////////
+									
 									FileOutputStream fos = new FileOutputStream(new File(filename));
 									byte[] inputbyte = new byte[1024];
 									int lengthh = 1024;
@@ -133,6 +131,8 @@ public class Client {
 									String str1 = name + " " + form.format(date) + "\n";
 									str1 = str1 + "收到来自" + name + "的图片，已保存在目录中，文件名为" + filename + "\n";
 									lPanel.accText(name, str1);
+									output.writeInt(piccode);
+									res = input.readInt();
 								}
 							}
 							if (res == askcode)
@@ -175,7 +175,7 @@ public class Client {
 				}
 			} catch (Exception ex)
 			{
-				ex.printStackTrace();
+				System.err.println(ex);
 				lPanel.login = false;
 				JOptionPane.showMessageDialog(null, "连接中断", "错误", JOptionPane.WARNING_MESSAGE);
 			}
@@ -188,6 +188,7 @@ public class Client {
 		new Thread(new clientConnect()).start();
 	}
 
+//	登陆
 	public int signin(String username, String password) {
 		connect();
 		int type = 1;
@@ -203,11 +204,12 @@ public class Client {
 			return success;
 		} catch (Exception ex)
 		{
-			ex.printStackTrace();
+			System.err.println(ex);
 			return -1;
 		}
 	}
 
+//	注册
 	public int signup(String username, String password) {
 		connect();
 		int type = 2;
@@ -223,18 +225,12 @@ public class Client {
 			return success;
 		} catch (Exception ex)
 		{
-			ex.printStackTrace();
+			System.err.println(ex);
 			return -1;
 		}
 	}
 
-	/*
-	 * public int sentCard(String toUser,String path){ connect(); byte[] int
-	 * type = 4; try{ File file = new File(path);
-	 * 
-	 * } return 1; }
-	 */
-
+//	点赞
 	public boolean like() {// 0bing 1youdao 2jinshan
 		if (!connecting)
 			return true;
@@ -262,7 +258,7 @@ public class Client {
 				}
 			} catch (IOException ex)
 			{
-				ex.printStackTrace();
+				System.err.println(ex);
 				return false;
 			}
 		} else
@@ -272,6 +268,7 @@ public class Client {
 		}
 	}
 
+//	发送消息
 	public void sendText(int index, String s) {
 		int type = textcode;
 		try
@@ -285,8 +282,6 @@ public class Client {
 					int success = 97654;
 					try
 					{
-						// while (success != 97653)
-						// {
 						synchronized (output)
 						{
 							output.writeInt(type);
@@ -297,8 +292,6 @@ public class Client {
 							success = input.readInt();
 						}
 						System.out.println(success);
-						// Thread.sleep(2000);
-						// }
 					} catch (Exception ex)
 					{
 						System.err.println("client.sendText wrong");
@@ -313,6 +306,7 @@ public class Client {
 		}
 	}
 
+//	发送图片
 	public void sendpic(String name, FileInputStream fin) {
 		int type = piccode;
 		try
@@ -326,8 +320,6 @@ public class Client {
 					int success = piccode + 1;
 					try
 					{
-						// while (success != 97653)
-						// {
 						picsending = true;
 						synchronized (output)
 						{
@@ -356,19 +348,17 @@ public class Client {
 						if (success != piccode)
 							JOptionPane.showMessageDialog(null, "网络错误，发送图片失败", "错误", JOptionPane.ERROR_MESSAGE);
 						System.out.println(success);
-						// Thread.sleep(2000);
-						// }
 					} catch (Exception ex)
 					{
 						System.err.println("client.sendpic wrong");
-						ex.printStackTrace();
+						System.err.println(ex);
 					}
 				}
 			}).start();
 
 		} catch (Exception ex)
 		{
-			ex.printStackTrace();
+			System.err.println(ex);
 			System.err.println("client.sendText wrong");
 		}
 	}
