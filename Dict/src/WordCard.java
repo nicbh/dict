@@ -10,6 +10,12 @@ import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
 
+
+/*
+ * 用户操作图片的工具类
+ * 里面定义了关于图片的 一系列操作以及图片的操作窗口
+ */
+
 public class WordCard extends JFrame {
 	private JPanel jp = null;
 	private JLabel jlb1 = null;
@@ -29,8 +35,14 @@ public class WordCard extends JFrame {
 	private BufferedImage wordImage = null;
 	public static final String pdir = System.getProperty("user.dir");
 
+	
+	/*
+	 * 创建一个单词卡生成窗口
+	 * @param word : 单词卡中的单词
+	 * @param Wordimage ： 单词解释的image
+	 */
 	WordCard(String word, BufferedImage wordimage) {
-//		System.out.println(pdir);
+		System.out.println(pdir);
 		this.setSize(600, 450);
 		this.setResizable(false);
 		this.setTitle("Dict");
@@ -115,6 +127,7 @@ public class WordCard extends JFrame {
 		this.add(jlb1, BorderLayout.WEST);
 		this.add(box, BorderLayout.CENTER);
 
+		//给添加文字的按钮添加监听事件
 		jbt1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String str = jta.getText();
@@ -125,6 +138,8 @@ public class WordCard extends JFrame {
 
 			}
 		});
+		
+		//给打开文件的按钮添加监听事件
 		jbt2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// System.out.println(e.getActionCommand());
@@ -153,6 +168,7 @@ public class WordCard extends JFrame {
 
 		});
 
+		//给保存文件的按钮添加监听事件
 		jSavebt.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String des = jtf2.getText();
@@ -160,6 +176,7 @@ public class WordCard extends JFrame {
 			}
 		});
 
+		//给取消添加的按钮添加监听事件
 		jCancelbt.addActionListener(new ActionListener() {
 
 			@Override
@@ -198,6 +215,14 @@ public class WordCard extends JFrame {
 	 * File(path)); ImageIcon imageIcon = new ImageIcon(image);
 	 * jlb1.setIcon(imageIcon); } }
 	 */
+	
+	/*
+	 * 将image1重新设定宽和高，并返回修改后的image
+	 * @param iamge1 ：要修改的Bufferedimage
+	 * @param width ： 修改后德尔宽
+	 * @param height 修改后的高
+	 * @return BufferedImage 返回修改后的image
+	 */
 	public BufferedImage resizeImage(BufferedImage image1, int width, int height) {
 //		System.out.println(image1.getWidth() + "+" + image1.getHeight());
 		BufferedImage tag = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -208,6 +233,25 @@ public class WordCard extends JFrame {
 		return tag;
 	}
 
+	
+	/*
+	 * 将image1
+	 */
+	public BufferedImage cut(BufferedImage image1, int width, int height){
+		BufferedImage tag = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		Graphics g = tag.getGraphics();
+		g.drawImage(image1, 0, 0, width, height, null);
+//		System.out.println(tag.getWidth() + "+" + tag.getHeight());
+		g.dispose();
+		return tag;
+	}
+	
+	/*
+	 *将image1中添加解释信息到特定区域
+	 *@param image1  要添加的解释图片
+	 *
+	 */
+	
 	public void addWordImage(BufferedImage image1) {
 		if (image1 == null)
 			return;
@@ -216,12 +260,24 @@ public class WordCard extends JFrame {
 		g.dispose();
 	}
 
+	/*
+	 * 将image2 整合到image1的上中部
+	 * @param image1:大图片 
+	 * @param image2小图片，被整合的image
+	 */
 	public void mergeImage(BufferedImage image1, BufferedImage image2) {
 		Graphics g = image1.getGraphics();
 		g.drawImage(image2, image1.getWidth() / 2 - image2.getWidth() / 2, 5, null);
 		g.dispose();
 	}
 
+	
+	/*
+	 * 向image中添加font字体的文字信息
+	 * @src : 被添加的image
+	 * @x : 表示位置
+	 * @y : 表示位置
+	 */
 	public void addWords(BufferedImage src, float alpha, String font, int fontStyle, int fontSize, Color color,
 			String words, int x, int y) {
 		Graphics2D g2d = src.createGraphics();
@@ -253,6 +309,10 @@ public class WordCard extends JFrame {
 
 	}
 
+	/*
+	 * 把image存储到path路径上
+	 * @param path image所要保存到的文件
+	 */
 	public void save(String path) {
 		try
 		{
