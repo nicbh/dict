@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
 //网络交互静态方法类
 public class Client {
 	private static final int port = 7795;
-	private static final String host = "192.168.1.100";
+	private static final String host = "localhost";
 	private final int askcode = 12368;
 	private final int textcode = 97653;
 	private final int piccode = 86432;
@@ -337,6 +337,7 @@ public class Client {
 								fin.read(outputbyte, 0, len);
 								output.write(outputbyte, 0, len);
 								output.flush();
+								Thread.sleep(100);
 								length -= len;
 								if (length < len)
 									len = length;

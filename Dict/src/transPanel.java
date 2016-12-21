@@ -12,6 +12,10 @@ import javax.swing.*;
  * 以及相关的翻译功能
  */
 public class transPanel extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6746365212673967861L;
 	private JTextArea text = new JTextArea();
 	private JTextArea trans = new JTextArea();
 	private int type = 0;

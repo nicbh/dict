@@ -17,7 +17,11 @@ import javax.swing.*;
  */
 
 public class WordCard extends JFrame {
-	private JPanel jp = null;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5785936097354946305L;
+//	private JPanel jp = null;
 	private JLabel jlb1 = null;
 	private JLabel jlb2 = null;
 	private JTextArea jta = null;
@@ -147,8 +151,8 @@ public class WordCard extends JFrame {
 				int returnval = fc.showOpenDialog(null);
 				if (returnval == JFileChooser.APPROVE_OPTION)
 				{
-					File f = fc.getSelectedFile();
-					String fileName = f.getName();
+//					File f = fc.getSelectedFile();
+//					String fileName = f.getName();
 					String filePath = fc.getSelectedFile().getAbsolutePath();
 					jtf.setText(filePath);
 					BufferedImage insert = null;

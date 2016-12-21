@@ -15,6 +15,10 @@ import javax.swing.text.*;
  * 
  */
 public class loginPanel extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1468905174708747189L;
 	private JTextField username = new JTextField(15);
 	private JPasswordField password = new JPasswordField(15);
 	private JButton signin = new JButton("登陆");
@@ -231,13 +235,13 @@ public class loginPanel extends JPanel {
 				{
 					File f = fc.getSelectedFile();
 					String fileName = f.getName();
-					String regex = ".+\\.(JPG|jpg|bmp|BMP|gif|GIF|WBMP|png|PNG|wbmp|jpeg|JPEG)";
-					if (!fileName.matches(regex))
-					{
-						JOptionPane.showMessageDialog(null, "不支持的图片格式", "错误", JOptionPane.ERROR_MESSAGE);
-						return;
-					}
-					String filePath = fc.getSelectedFile().getAbsolutePath();
+//					String regex = ".+\\.(JPG|jpg|bmp|BMP|gif|GIF|WBMP|png|PNG|wbmp|jpeg|JPEG)";
+//					if (!fileName.matches(regex))
+//					{
+//						JOptionPane.showMessageDialog(null, "不支持的图片格式", "错误", JOptionPane.ERROR_MESSAGE);
+//						return;
+//					}
+//					String filePath = fc.getSelectedFile().getAbsolutePath();
 					try
 					{
 						FileInputStream in = new FileInputStream(f);
@@ -409,12 +413,17 @@ public class loginPanel extends JPanel {
 	 * logindlg 对话框类，当未登录是点击“发现”会弹出登录对话框
 	 */
 	private class logindlg extends JFrame {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 716671922175637837L;
+
 		logindlg() {
 			setSize(300, 150);
 			setResizable(false);
 			setTitle("登陆");
 			setLocationRelativeTo(null);
-			setDefaultCloseOperation(lgn.DISPOSE_ON_CLOSE);
+			setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			this.addWindowListener(new WindowAdapter() {
 
 				@Override

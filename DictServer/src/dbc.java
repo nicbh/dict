@@ -1,5 +1,10 @@
+
 import java.sql.*;
 import java.util.*;
+import java.io.*;
+import org.apache.commons.dbcp2.*;
+import javax.sql.DataSource;
+
 
 //数据库处理类
 public class dbc {
@@ -11,9 +16,10 @@ public class dbc {
 	private Statement stmt;
 	//在线用户列表
 	private Map<Integer, String> id_name = Collections.synchronizedMap(new HashMap<Integer, String>());
-	private final String dbconn = "jdbc:mysql://localhost/dict?useSSL=true";
-	private final String dbun = "root";
-	private final String dbpw = "qwer";
+//	private final String dbconn = "jdbc:mysql://localhost/dict?useSSL=true";
+//	private final String dbun = "root";
+//	private final String dbpw = "qwer";
+	private DataSource ds;
 	String queryString0 = "select id,password " + "from login " + "where username=?";
 	String queryString1 = "insert into login " + "values (?,?,?)";
 	String queryString2 = "select * " + "from info " + "where id=?";
@@ -21,11 +27,20 @@ public class dbc {
 	String queryString4 = "insert into info values (?,?,?,?)";
 
 	dbc() {
+		Properties pro = new Properties();
+		try {
+			pro.load(new FileInputStream(new File("dbcpconfig.properties")));
+			ds = BasicDataSourceFactory.createDataSource(pro);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			System.err.println("Initial config error!");
+		}
 		try
 		{
-			Class.forName("com.mysql.jdbc.Driver");
-			System.out.println("Driver loaded");
-			Connection connection = DriverManager.getConnection(dbconn, dbun, dbpw);
+//			Class.forName("com.mysql.jdbc.Driver");
+//			System.out.println("Driver loaded");
+//			Connection connection = DriverManager.getConnection(dbconn, dbun, dbpw);
+			Connection connection = ds.getConnection();
 			System.out.println("Database connected");
 			stmt = connection.createStatement();
 
@@ -69,7 +84,8 @@ public class dbc {
 	public int sql_signin(String username, String password) {
 		try
 		{
-			Connection connection = DriverManager.getConnection(dbconn, dbun, dbpw);
+//			Connection connection = DriverManager.getConnection(dbconn, dbun, dbpw);
+			Connection connection = ds.getConnection();
 			ps0 = connection.prepareStatement(queryString0);
 			ps0.setString(1, username);
 			ResultSet rset = ps0.executeQuery();
@@ -90,7 +106,8 @@ public class dbc {
 	public int sql_signup(String username, String password) {
 		try
 		{
-			Connection connection = DriverManager.getConnection(dbconn, dbun, dbpw);
+//			Connection connection = DriverManager.getConnection(dbconn, dbun, dbpw);
+			Connection connection = ds.getConnection();
 			ps1 = connection.prepareStatement(queryString1);
 			int id = id_name.size();
 			ps1.setInt(1, id);
@@ -118,7 +135,8 @@ public class dbc {
 	public int[] sql_likes(int id) {
 		try
 		{
-			Connection connection = DriverManager.getConnection(dbconn, dbun, dbpw);
+//			Connection connection = DriverManager.getConnection(dbconn, dbun, dbpw);
+			Connection connection = ds.getConnection();
 			ps2 = connection.prepareStatement(queryString2);
 			ps2.setInt(1, id);
 			ResultSet rset = ps2.executeQuery();
@@ -144,7 +162,8 @@ public class dbc {
 			return false;
 		try
 		{
-			Connection connection = DriverManager.getConnection(dbconn, dbun, dbpw);
+//			Connection connection = DriverManager.getConnection(dbconn, dbun, dbpw);
+			Connection connection = ds.getConnection();
 			ps3 = connection.prepareStatement(queryString3);
 			ps3.setInt(1, likes[0]);
 			ps3.setInt(2, likes[1]);

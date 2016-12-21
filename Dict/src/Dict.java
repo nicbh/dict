@@ -16,6 +16,10 @@ import java.net.*;
  * 
  */
 public class Dict extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 94045959416824037L;
 	private Dict dict;
 	private JTabbedPane pane = new JTabbedPane(JTabbedPane.TOP);
 	private int index = 0;

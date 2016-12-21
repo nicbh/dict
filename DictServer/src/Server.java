@@ -8,11 +8,14 @@ import java.awt.*;
 import javax.swing.*;
 import java.net.*;
 
-
 /*
  * 服务器类，继承了JFrame
  */
 public class Server extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7735457934833917890L;
 	// 服务器监控
 	private JTextArea text = new JTextArea();
 	private dbc database = new dbc();
@@ -49,9 +52,10 @@ public class Server extends JFrame {
 			System.out.println(database.getName(id) + " " + id);
 		}
 		// 如果有用户登录或者注册，新建一个线程处理用户交互
+		ServerSocket serverSocket = null;
 		try
 		{
-			ServerSocket serverSocket = new ServerSocket(7795);
+			serverSocket = new ServerSocket(7795);
 			text.append("Start to work\n");
 			int clientNo = 1;
 			ExecutorService executor = Executors.newCachedThreadPool();
@@ -70,12 +74,18 @@ public class Server extends JFrame {
 		{
 			System.err.println(ex);
 		}
+		try
+		{
+			if (serverSocket != null)
+				serverSocket.close();
+		} catch (IOException ex)
+		{
+			System.err.println(ex);
+		}
 	}
 
-
 	/*
-	 * 内部类：主要是当有个客户端与服务器建立连接时，服务器新建一个线程来处理客户端的请求
-	 * 里面处理了来自客户端的各种请求，比如登录，注册
+	 * 内部类：主要是当有个客户端与服务器建立连接时，服务器新建一个线程来处理客户端的请求 里面处理了来自客户端的各种请求，比如登录，注册
 	 */
 	private class HandleAClient implements Runnable {
 		private Socket socket;
@@ -110,6 +120,10 @@ public class Server extends JFrame {
 					{
 						output.writeUTF(database.getName(entry.getKey()));
 						output.writeInt(entry.getValue());
+					}
+					synchronized (text)
+					{
+						text.append(No + "connect start\n");
 					}
 					while (true)
 					{
@@ -228,14 +242,15 @@ public class Server extends JFrame {
 								likes[2] = input.readInt();
 								synchronized (text)
 								{
-									text.append(No + "update likes: " + likes[0] + " " + likes[1] + " " + likes[2]);
+									text.append(
+											No + "update likes: " + likes[0] + " " + likes[1] + " " + likes[2] + "\n");
 								}
 								if (user.setLikes(likes) == true)
 									output.writeInt(likecode);
 								else
 									output.writeInt(likecode + 1);
 							} else if (response == textcode)
-							{//接受消息
+							{// 接受消息
 								String name, content;
 								name = input.readUTF();
 								content = input.readUTF();
@@ -251,7 +266,7 @@ public class Server extends JFrame {
 									text.append(No + "sendtext: " + name + "; " + content);
 								}
 							} else if (response == piccode)
-							{//接受图片
+							{// 接受图片
 								String name = input.readUTF();
 								int inddd = name.lastIndexOf('$');
 								String picxxx = name.substring(inddd + 1);
@@ -270,6 +285,7 @@ public class Server extends JFrame {
 									len -= lengthh;
 									fos.write(inputbyte, 0, lengthh);
 									fos.flush();
+									Thread.sleep(100);
 									if (len < lengthh)
 										lengthh = len;
 								}
@@ -296,7 +312,7 @@ public class Server extends JFrame {
 					users.put(user.getId(), 0);
 				}
 				socket.close();
-			} catch (IOException ex)
+			} catch (Exception ex)
 			{
 				System.err.println(ex);
 			}
@@ -366,7 +382,7 @@ public class Server extends JFrame {
 		}
 	}
 
-//	用户信息内部类
+	// 用户信息内部类
 	public class User {
 		private int id;
 		private String username;
@@ -377,7 +393,7 @@ public class Server extends JFrame {
 			this.password = password;
 		}
 
-//		注册
+		// 注册
 		public boolean confirmName() {
 			if (database.checkname(username))
 				return false;
@@ -388,7 +404,7 @@ public class Server extends JFrame {
 			}
 		}
 
-//		登陆
+		// 登陆
 		public boolean confirm() {
 			id = database.sql_signin(username, password);
 			if (id == -1)
@@ -410,7 +426,7 @@ public class Server extends JFrame {
 			return rt;
 		}
 
-//		获取点赞列表
+		// 获取点赞列表
 		public int[] getLikes() {
 			int[] likes = database.sql_likes(id);
 			if (likes.length != 3)
@@ -419,7 +435,7 @@ public class Server extends JFrame {
 				return likes;
 		}
 
-//		点赞
+		// 点赞
 		public boolean setLikes(int[] likes) {
 			return database.set_likes(id, likes);
 		}
