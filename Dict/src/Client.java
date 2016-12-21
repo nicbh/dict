@@ -120,9 +120,9 @@ public class Client {
 										lengthh = len;
 									while (len > 0)
 									{
-										input.read(inputbyte, 0, lengthh);
-										len -= lengthh;
-										fos.write(inputbyte, 0, lengthh);
+										int datalength = input.read(inputbyte, 0, lengthh);
+										len -= datalength;
+										fos.write(inputbyte, 0, datalength);
 										fos.flush();
 										if (len < lengthh)
 											lengthh = len;
@@ -337,7 +337,6 @@ public class Client {
 								fin.read(outputbyte, 0, len);
 								output.write(outputbyte, 0, len);
 								output.flush();
-								Thread.sleep(100);
 								length -= len;
 								if (length < len)
 									len = length;

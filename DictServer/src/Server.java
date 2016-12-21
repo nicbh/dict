@@ -281,11 +281,10 @@ public class Server extends JFrame {
 									lengthh = len;
 								while (len > 0)
 								{
-									input.read(inputbyte, 0, lengthh);
-									len -= lengthh;
-									fos.write(inputbyte, 0, lengthh);
+									int datalength = input.read(inputbyte, 0, lengthh);
+									len -= datalength;
+									fos.write(inputbyte, 0, datalength);
 									fos.flush();
-									Thread.sleep(100);
 									if (len < lengthh)
 										lengthh = len;
 								}
